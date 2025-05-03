@@ -13,18 +13,11 @@ interface ProfileTabsProps {
 export function ProfileTabs({ children, defaultTab = "applications" }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState(defaultTab)
 
-  // Map tab values to their display names
-  const tabNames: Record<string, string> = {
-    applications: "Applications",
-    saved: "Saved Jobs",
-    settings: "Settings",
-  }
-
   // Get an array of React.Children to work with
   const childrenArray = React.Children.toArray(children)
 
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+    <Tabs defaultValue={defaultTab} className="w-full">
       <TabsList className="grid grid-cols-3 mb-8">
         <TabsTrigger value="applications">Applications</TabsTrigger>
         <TabsTrigger value="saved">Saved Jobs</TabsTrigger>

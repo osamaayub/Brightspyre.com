@@ -21,7 +21,7 @@ export default async function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <ProfileHeader user={user} />
-      <ProfileTabs>
+      <ProfileTabs defaultTab="applications">
         <ProfileApplications />
         <ProfileSavedJobs />
         <ProfileSettings />
