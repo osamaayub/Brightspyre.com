@@ -1,36 +1,37 @@
 import type React from "react"
-import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from "@/components/navbar"
-import Footer from "@/components/footer"
-import { Providers } from "./providers"
+import { Toaster } from "@/components/ui/toaster"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+import { AuthProvider } from "@/hooks/use-auth"
+import "@/app/globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "Brightspyre - Job Board",
-  description: "Find your dream job with Brightspyre",
+export const metadata = {
+  title: "Brightspyre - Find Your Next Career Opportunity",
+  description: "Discover job opportunities and connect with top companies",
     generator: 'v0.dev'
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <Providers>
+        <ThemeProvider attribute="class" defaultTheme="light">
+          <AuthProvider>
             <div className="flex min-h-screen flex-col">
-              <Navbar />
+              <Header />
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
-          </Providers>
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
