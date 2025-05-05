@@ -12,15 +12,17 @@ import {
 } from "@/components/ui/pagination"
 import { SaveJobButton } from "@/components/save-job-button"
 
-export function JobsList() {
-  // Mock jobs data
+import { Filters } from "@/types/filter"
+
+export function JobsList({ filters }: { filters: Filters }) {
   const jobs = [
     {
       id: "1",
       title: "Senior Frontend Developer",
+      experience:"Entry",
       company: "TechCorp",
       location: "San Francisco, CA (Remote)",
-      salary: "$120,000 - $150,000",
+      salary: "$80,000 - $150,000",
       type: "Full-time",
       posted: "2 days ago",
     },
@@ -28,7 +30,7 @@ export function JobsList() {
       id: "2",
       title: "Backend Engineer",
       company: "DevInc",
-      location: "New York, NY",
+      location: "onsite",
       salary: "$130,000 - $160,000",
       type: "Full-time",
       posted: "1 week ago",
@@ -37,18 +39,18 @@ export function JobsList() {
       id: "3",
       title: "UX Designer",
       company: "DesignCo",
-      location: "Remote",
+      location: "remote",
       salary: "$90,000 - $120,000",
-      type: "Full-time",
+      type: "full-time",
       posted: "3 days ago",
     },
     {
       id: "4",
       title: "DevOps Engineer",
       company: "WebSolutions",
-      location: "Seattle, WA",
+      location: "Onsite",
       salary: "$110,000 - $140,000",
-      type: "Full-time",
+      type: "full-time",
       posted: "5 days ago",
     },
     {
@@ -57,25 +59,41 @@ export function JobsList() {
       company: "TechCorp",
       location: "San Francisco, CA",
       salary: "$130,000 - $160,000",
-      type: "Full-time",
+      type: "full-time",
       posted: "1 week ago",
     },
     {
       id: "6",
       title: "Data Scientist",
       company: "DataCo",
-      location: "Remote",
+      location: "remote",
       salary: "$120,000 - $150,000",
-      type: "Full-time",
+      type: "part-time",
       posted: "4 days ago",
     },
   ]
+
+  // Filter the jobs based on selected filters
+  const filteredJobs = jobs.filter((job) => {
+    const matchType = filters.jobType.length === 0 || filters.jobType.includes(job.type)
+    const matchLocation = filters.location.length === 0 || filters.location.includes(job.location)
+    
+    // Assuming salary range is an array where filters.salary[0] is the min and filters.salary[1] is the max salary
+    const [minSalary, maxSalary] = filters.salary
+    const matchSalary = filters.salary.length === 0 || 
+      (parseInt(job.salary.split('-')[0].replace('$', '').replace(',', '').trim()) >= minSalary &&
+      parseInt(job.salary.split('-')[1].replace('$', '').replace(',', '').trim()) <= maxSalary)
+
+    return matchType && matchLocation && matchSalary
+  })
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <span className="text-muted-foreground">Showing 1-6 of 120 jobs</span>
+          <span className="text-muted-foreground">
+            Showing {filteredJobs.length} of {jobs.length} jobs
+          </span>
         </div>
         <div>
           <select className="p-2 border rounded-md text-sm">
@@ -87,7 +105,7 @@ export function JobsList() {
       </div>
 
       <div className="space-y-4">
-        {jobs.map((job) => (
+        {filteredJobs.map((job) => (
           <Card key={job.id}>
             <CardContent className="p-6">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -97,9 +115,6 @@ export function JobsList() {
                       {job.title}
                     </Link>
                     <Badge>{job.type}</Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <span>{job.company}</span> • <span>{job.location}</span>
                   </div>
                   <div className="text-sm font-medium">{job.salary}</div>
                 </div>

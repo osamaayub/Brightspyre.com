@@ -83,14 +83,14 @@ export default function CompanyPage({ params }: { params: { id: string } }) {
                     </div>
                     <div>
                       <h4 className="font-medium">Website</h4>
-                      <a
+                      <Link
                         href={company.website}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
                         {company.website.replace("https://", "")}
-                      </a>
+                      </Link>
                     </div>
                     <div>
                       <h4 className="font-medium">Industry</h4>
