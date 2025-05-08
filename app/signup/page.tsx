@@ -1,8 +1,10 @@
 "use client"
 
 import type React from "react"
-
+import {useForm} from "react-hook-form";
 import { useState } from "react"
+import { SignUpFormSchema } from "@/schemas/page";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,14 +12,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import { SignUpForm } from "@/types/type";
 
 export default function SignupPage() {
+  const { register, handleSubmit, formState: { errors } } = useForm<SignUpForm>({
+     resolver: zodResolver(SignUpFormSchema),
+   });
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
+ 
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const onSubmit = async (data:SignUpForm) => {
     setIsLoading(true)
 
     // Simulate account creation
@@ -32,7 +38,7 @@ export default function SignupPage() {
     })
 
     // Redirect to home page
-    router.push("/")
+    router.push("/login");
   }
 
   return (
@@ -43,28 +49,54 @@ export default function SignupPage() {
           <CardDescription>Enter your information to create an account</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)}  className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="first-name">First name</Label>
-                <Input id="first-name" placeholder="John" required />
+                <Input id="first-name" placeholder="firstname" required 
+                {...register("firstName")}
+                 />
+                 {errors.firstName && (
+                <p className="text-sm text-red-600">{errors.firstName.message}</p>
+              )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="last-name">Last name</Label>
-                <Input id="last-name" placeholder="Doe" required />
+                <Input id="last-name" placeholder="last name" required 
+                {...register("lastName")}
+                />
+                {errors.lastName && (
+                <p className="text-sm text-red-600">{errors.lastName.message}</p>
+              )}
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input id="email" type="email" placeholder="Enter the Email" 
+              required
+              {...register("email")}
+               />
+               {errors.email && (
+                <p className="text-sm text-red-600">{errors.email.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+              <Input id="password" type="password" required 
+              {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirm-password">Confirm Password</Label>
-              <Input id="confirm-password" type="password" required />
+              <Input id="confirm-password" type="password" 
+              {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-red-600">{errors.confirmPassword.message}</p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating account..." : "Create account"}

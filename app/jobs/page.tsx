@@ -14,7 +14,7 @@ export default function JobsPage() {
 
   });
 const handleApplyFilter=(applyFilters:typeof filters)=>{
- console.log("filters",applyFilters);
+ setFilters(applyFilters);
 }
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,57 +1,72 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useForm } from "react-hook-form"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { LoginFormSchema } from "@/schemas/page";
+
+import type React from "react";
+import { FormInput } from "@/types/type"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/context/auth-context"
+import { useState } from "react"
 
 export default function LoginPage() {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const { toast } = useToast()
-  const { login } = useAuth()
+  const { register, handleSubmit, formState: { errors } } = useForm<FormInput>({
+    resolver: zodResolver(LoginFormSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const { login } = useAuth();
+
+  const onSubmit = async (data: FormInput) => {
+    setIsLoading(true);
 
     // Simulate authentication
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Log the user in
-    login()
-
-    setIsLoading(false)
+    login();
 
     // Show success message
     toast({
       title: "Login successful",
       description: "You have been logged in successfully.",
-    })
+    });
 
     // Redirect to home page
-    router.push("/")
-  }
+    router.push("/");
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Login</CardTitle>
-          <CardDescription>Enter your email and password to login to your account</CardDescription>
+          <CardDescription>
+            Enter your email and password to login to your account
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="m@example.com" required />
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                {...register("email")}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-600">{errors.email.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -60,7 +75,14 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-600">{errors.password.message}</p>
+              )}
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
@@ -84,12 +106,8 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full">
-            <Button variant="outline" type="button">
-              Google
-            </Button>
-            <Button variant="outline" type="button">
-              GitHub
-            </Button>
+            <Button variant="outline" type="button">Google</Button>
+            <Button variant="outline" type="button">GitHub</Button>
           </div>
         </CardFooter>
       </Card>

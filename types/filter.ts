@@ -1,6 +1,6 @@
 export interface Filters {
-    jobType: string[]
+    category_name: string[]
     location: string[]
-    experience: string[]
     salary: number[]
+    title:string
   }

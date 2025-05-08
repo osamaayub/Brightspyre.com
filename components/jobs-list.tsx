@@ -1,159 +1,163 @@
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import { SaveJobButton } from "@/components/save-job-button"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import axios from "axios";
+import striptags from "striptags";
+import he from "he";
 
-import { Filters } from "@/types/filter"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SaveJobButton } from "@/components/save-job-button";
+import { Filters } from "@/types/filter";
 
 export function JobsList({ filters }: { filters: Filters }) {
-  const jobs = [
-    {
-      id: "1",
-      title: "Senior Frontend Developer",
-      experience:"Entry",
-      company: "TechCorp",
-      location: "San Francisco, CA (Remote)",
-      salary: "$80,000 - $150,000",
-      type: "Full-time",
-      posted: "2 days ago",
-    },
-    {
-      id: "2",
-      title: "Backend Engineer",
-      company: "DevInc",
-      location: "onsite",
-      salary: "$130,000 - $160,000",
-      type: "Full-time",
-      posted: "1 week ago",
-    },
-    {
-      id: "3",
-      title: "UX Designer",
-      company: "DesignCo",
-      location: "remote",
-      salary: "$90,000 - $120,000",
-      type: "full-time",
-      posted: "3 days ago",
-    },
-    {
-      id: "4",
-      title: "DevOps Engineer",
-      company: "WebSolutions",
-      location: "Onsite",
-      salary: "$110,000 - $140,000",
-      type: "full-time",
-      posted: "5 days ago",
-    },
-    {
-      id: "5",
-      title: "Product Manager",
-      company: "TechCorp",
-      location: "San Francisco, CA",
-      salary: "$130,000 - $160,000",
-      type: "full-time",
-      posted: "1 week ago",
-    },
-    {
-      id: "6",
-      title: "Data Scientist",
-      company: "DataCo",
-      location: "remote",
-      salary: "$120,000 - $150,000",
-      type: "part-time",
-      posted: "4 days ago",
-    },
-  ]
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const jobsPerPage = 100;
 
-  // Filter the jobs based on selected filters
-  const filteredJobs = jobs.filter((job) => {
-    const matchType = filters.jobType.length === 0 || filters.jobType.includes(job.type)
-    const matchLocation = filters.location.length === 0 || filters.location.includes(job.location)
-    
-    // Assuming salary range is an array where filters.salary[0] is the min and filters.salary[1] is the max salary
-    const [minSalary, maxSalary] = filters.salary
-    const matchSalary = filters.salary.length === 0 || 
-      (parseInt(job.salary.split('-')[0].replace('$', '').replace(',', '').trim()) >= minSalary &&
-      parseInt(job.salary.split('-')[1].replace('$', '').replace(',', '').trim()) <= maxSalary)
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
-    return matchType && matchLocation && matchSalary
-  })
+  async function fetchJobs() {
+    try {
+      const response = await axios.get("/api/jobs");
+      setJobs(response.data.results || []);
+    } catch (error: any) {
+      setError(error.response?.data?.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
+  if (error) return <div className="text-red-600 text-center">{error}</div>;
+
+  const totalPages = Math.ceil(jobs.length / jobsPerPage);
+  const paginatedJobs = jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <span className="text-muted-foreground">
-            Showing {filteredJobs.length} of {jobs.length} jobs
-          </span>
-        </div>
-        <div>
-          <select className="p-2 border rounded-md text-sm">
-            <option>Most Recent</option>
-            <option>Highest Salary</option>
-            <option>Most Relevant</option>
-          </select>
-        </div>
+    <div className="space-y-10">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <p className="text-sm text-gray-500">
+          Showing {paginatedJobs.length} of {jobs.length} jobs
+        </p>
+        <select className="p-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto">
+          <option>Most Recent</option>
+          <option>Highest Salary</option>
+          <option>Most Relevant</option>
+        </select>
       </div>
 
-      <div className="space-y-4">
-        {filteredJobs.map((job) => (
-          <Card key={job.id}>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/jobs/${job.id}`} className="text-xl font-semibold hover:underline">
-                      {job.title}
-                    </Link>
-                    <Badge>{job.type}</Badge>
-                  </div>
-                  <div className="text-sm font-medium">{job.salary}</div>
-                </div>
-                <div className="flex items-center gap-4 mt-4 md:mt-0">
-                  <span className="text-xs text-muted-foreground">{job.posted}</span>
-                  <div className="flex gap-2">
-                    <SaveJobButton jobId={job.id} jobTitle={job.title} size="sm" />
-                    <Link href={`/jobs/${job.id}`}>
-                      <Button size="sm">View Job</Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {paginatedJobs.map((job: any) => (
+          <JobCard key={job.id} job={job} />
         ))}
       </div>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious href="#" />
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">1</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#" isActive>
-              2
-            </PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationLink href="#">3</PaginationLink>
-          </PaginationItem>
-          <PaginationItem>
-            <PaginationNext href="#" />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
-  )
+  );
+}
+
+// Helper function to clean description
+function cleanDescription(html: string) {
+  return he.decode(striptags(html));
+}
+
+// Compact and responsive JobCard
+function JobCard({ job }: { job: any }) {
+  return (
+    <Card className="transition-shadow duration-300 hover:shadow-md border border-gray-200 rounded-lg bg-white h-[340px] flex flex-col">
+      <CardContent className="p-4 flex flex-col justify-between flex-1 space-y-3 text-sm">
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <Link href={`/jobs/${job.id}`} className="text-sm font-semibold hover:underline line-clamp-1">
+              {job.title}
+            </Link>
+            {job.organization_logo && (
+              <Image
+                src={job.organization_logo}
+                alt="logo"
+                width={32}
+                height={32}
+                className="rounded-full object-contain"
+              />
+            )}
+          </div>
+
+          <Badge variant="secondary" className="text-xs">{job.organization}</Badge>
+
+          <p className="text-xs text-gray-600 mt-2 line-clamp-4">
+            {cleanDescription(job.description)}
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs text-gray-500">{job.end_date || "Date not available"}</span>
+          <div className="flex gap-2">
+            <SaveJobButton jobId={job.id} jobTitle={job.title} size="sm" />
+            <Link href={`/jobs/${job.encrypted_id}`}>
+              <Button size="sm">View Job</Button>
+            </Link>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Pagination Component
+function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: {
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
+}) {
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  return (
+    <div className="flex justify-center items-center flex-wrap gap-2 mt-6">
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+      >
+        Previous
+      </Button>
+
+      {pages.map((page) => (
+        <Button
+          key={page}
+          size="sm"
+          variant={currentPage === page ? "default" : "outline"}
+          onClick={() => onPageChange(page)}
+        >
+          {page}
+        </Button>
+      ))}
+
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Next
+      </Button>
+    </div>
+  );
 }
