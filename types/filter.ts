@@ -10,4 +10,15 @@
     organization: string;
   }
   
+  export type Job = {
+    title: string;
+    location: string;
+    organization: string;
+    category_name: string;
+    description?: string;
+    salary: number;
+  };
   
+  export type JobsApiResponse = {
+    results: Job[];
+  };

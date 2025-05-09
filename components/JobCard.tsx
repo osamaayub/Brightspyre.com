@@ -8,33 +8,35 @@ import { Badge } from "@/components/ui/badge";
 
 export function JobCard({ job }: { job: any }) {
   return (
-    <Card className="flex flex-col justify-between h-full shadow-md border rounded-xl">
-      <CardContent className="p-5 flex flex-col space-y-4 h-full">
+    <Card className="flex flex-col justify-between h-full shadow-lg border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
+      <CardContent className="p-6 flex flex-col space-y-4 h-full">
         {/* Header with Logo */}
         <div className="flex items-center justify-between">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
             {typeof job.organization_logo === 'string' && job.organization_logo.startsWith('http') && (
               <Image
                 src={job.organization_logo}
                 alt="Organization Logo"
-                width={48}
-                height={48}
+                width={64}
+                height={64}
                 className="rounded-full object-cover"
               />
             )}
+          </div>
+          <div className="flex flex-col items-end">
+            <p className="text-sm text-gray-500 whitespace-nowrap">{job.organizaion}</p>
+            <p className="text-xs text-gray-400">{job.country}</p>
           </div>
         </div>
 
         {/* Job Info */}
         <div className="flex flex-col flex-grow space-y-2">
-          <h3 className="text-lg font-semibold text-gray-800">
-            <Link href={`/jobs/${job.id}`} className="hover:underline">
+          <h3 className="text-xl font-semibold text-gray-800">
+            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 transition-colors">
               {job.title}
             </Link>
           </h3>
-          <p className="text-sm text-gray-600 line-clamp-3">
-            {cleanDescription(job.description || "")}
-          </p>
+          <p className="text-sm text-gray-600 line-clamp-4">{cleanDescription(job.description || "")}</p>
 
           {/* Location & Category */}
           <div className="flex flex-wrap gap-2 pt-2">
@@ -44,10 +46,8 @@ export function JobCard({ job }: { job: any }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-auto flex flex-wrap gap-3">
-          <p className="text-sm text-gray-500 mb-2">{job.organization}</p>
-          <p className="text-sm text-gray-500 mb-2 whitespace-nowrap">{job.country}</p>
-          <div className="flex items-center gap-3">
+        <div className="mt-auto flex flex-col sm:flex-row sm:items-center sm:gap-3 sm:justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-3">
             <SaveJobButton jobId={job.id} jobTitle={job.title} />
             <Link href={`/jobs/${job.encrypted_id}`}>
               <Button size="sm" className="text-sm">View Job</Button>

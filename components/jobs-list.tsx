@@ -17,8 +17,8 @@ export function JobsList({ filters }: { filters: Filters }) {
   const jobsPerPage = 100;
 
   useEffect(() => {
-      fetchJobs();
-  }, [filters,currentPage]);
+    fetchJobs();
+  }, [selectedFilters, currentPage]);
 
   function removeEmptyFilters(filters: Filters) {
     return Object.fromEntries(
@@ -34,7 +34,6 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   async function fetchJobs() {
     try {
-      setLoading(true);
       const cleanFilters = removeEmptyFilters(selectedFilters);
       const response = await axios.get("/api/jobs", {
         params: {
@@ -51,6 +50,7 @@ export function JobsList({ filters }: { filters: Filters }) {
   }
 
 
+
   if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
   if (error) return <div className="text-red-600 text-center">{error}</div>;
 
@@ -65,14 +65,13 @@ export function JobsList({ filters }: { filters: Filters }) {
   };
 
   // Apply Filters function
-  const ApplyFilters = () => {
-    setCurrentPage(1); // Reset to page 1 after applying filters
-    // fetchJobs();
-  };
+  function ApplyFilters() {
+    setCurrentPage(1);
+  }
+
 
   const resetFilters = () => {
     setSelectedFilters(filters); // Reset to initial filters'
-    setCurrentPage(1);
   };
 
   const handleSalaryChange = (value: number[]) => {
@@ -85,9 +84,9 @@ export function JobsList({ filters }: { filters: Filters }) {
   };
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex flex-col lg:flex-row gap-6 h-full">
       {/* Sidebar Filter */}
-      <div className="min-w-[250px] max-w-[300px]  p-4 bg-gray-50 rounded-lg shadow-md">
+      <div className="min-w-[250px] max-w-[300px] p-4 bg-gray-50 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
 
         <div className="space-y-4">
@@ -156,7 +155,7 @@ export function JobsList({ filters }: { filters: Filters }) {
       </div>
 
       {/* Job Listings */}
-      <div className="w-3/4 space-y-10">
+      <div className="flex-1 space-y-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
             Showing {paginatedJobs.length} of {jobs.length} jobs
@@ -182,6 +181,7 @@ export function JobsList({ filters }: { filters: Filters }) {
         />
       </div>
     </div>
+
   );
 }
 
