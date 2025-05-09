@@ -1,8 +1,11 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -16,20 +19,26 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import { applySchema } from "@/schemas/page"
+import { ApplyButtonProps } from "@/types/type"
 
-interface ApplyButtonProps {
-  jobId: string
-  jobTitle: string
-  company: string
-}
+
 
 export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<ApplyButtonProps>({
+    resolver: zodResolver(applySchema),
+  })
+
+  const onSubmit = async (data: ApplyButtonProps) => {
     setIsSubmitting(true)
 
     // Simulate API call
@@ -37,6 +46,7 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
 
     setIsSubmitting(false)
     setOpen(false)
+    reset()
 
     toast({
       title: "Application submitted",
@@ -51,51 +61,56 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Apply for {jobTitle}</DialogTitle>
             <DialogDescription>Complete the form below to apply for this position at {company}.</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first-name">First name</Label>
-                <Input id="first-name" required />
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="firstName">First name</Label>
+                <Input id="firstName" {...register("firstName")} />
+                {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="last-name">Last name</Label>
-                <Input id="last-name" required />
+              <div className="space-y-1">
+                <Label htmlFor="lastName">Last name</Label>
+                <Input id="lastName" {...register("lastName")} />
+                {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" required />
+              <Input id="email" type="email" {...register("email")} />
+              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="phone">Phone number</Label>
-              <Input id="phone" type="tel" />
+              <Input id="phone" type="tel" {...register("phone")} />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="resume">Resume</Label>
-              <Input id="resume" type="file" accept=".pdf,.doc,.docx" required />
+              <Input id="resume" type="file" {...register("resume")} accept=".pdf,.doc,.docx" />
               <p className="text-xs text-muted-foreground mt-1">Accepted formats: PDF, DOC, DOCX. Max size: 5MB.</p>
+              {errors.resume && <p className="text-sm text-red-500">{errors.resume.message}</p>}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="cover-letter">Cover letter (optional)</Label>
-              <Textarea id="cover-letter" rows={5} placeholder="Tell us why you're a good fit for this position" />
+            <div className="space-y-1">
+              <Label htmlFor="coverLetter">Cover letter (optional)</Label>
+              <Textarea id="coverLetter" rows={5} placeholder="Tell us why you're a good fit" {...register("coverLetter")} />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <Label htmlFor="linkedin">LinkedIn profile (optional)</Label>
-              <Input id="linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" />
+              <Input id="linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" {...register("linkedin")} />
+              {errors.linkedin && <p className="text-sm text-red-500">{errors.linkedin.message}</p>}
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>

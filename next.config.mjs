@@ -7,7 +7,16 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns:[
+       {
+        protocol:'https',
+        hostname:'resume.brightspyre.com',
+        pathname:'/**'
+       }
+
+
+    ],
+    unoptimized: false,
   },
 }
 

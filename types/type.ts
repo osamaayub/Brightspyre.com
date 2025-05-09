@@ -1,3 +1,4 @@
+import { File } from "buffer"
 import { string } from "zod"
 
 export type FormInput={
@@ -12,3 +13,16 @@ export type SignUpForm={
     password:string,
     confirmPassword:string
 }
+
+export interface ApplyButtonProps {
+    jobId: string
+    jobTitle: string
+    company?: string,
+    firstName?:string,
+    lastName?:string,
+    email?:string,
+    resume?:File,
+    phone?:string,
+    linkedin?:string,
+    coverLetter?:string
+  }

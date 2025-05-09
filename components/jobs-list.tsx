@@ -1,30 +1,47 @@
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import axios from "axios";
-import striptags from "striptags";
-import he from "he";
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
-import { SaveJobButton } from "@/components/save-job-button";
 import { Filters } from "@/types/filter";
+import { Slider } from "@/components/ui/slider";
+import { JobCard } from "@/components/JobCard";
+import { Pagination } from "@/components/pagination-job";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [selectedFilters, setSelectedFilters] = useState<Filters>(filters);
   const jobsPerPage = 100;
 
   useEffect(() => {
-    fetchJobs();
-  }, []);
+      fetchJobs();
+  }, [filters,currentPage]);
+
+  function removeEmptyFilters(filters: Filters) {
+    return Object.fromEntries(
+      Object.entries(filters).filter(
+        ([_, value]) =>
+          value !== undefined &&
+          value !== null &&
+          value !== "" &&
+          !(Array.isArray(value) && value.length === 0)
+      )
+    );
+  }
 
   async function fetchJobs() {
     try {
-      const response = await axios.get("/api/jobs");
+      setLoading(true);
+      const cleanFilters = removeEmptyFilters(selectedFilters);
+      const response = await axios.get("/api/jobs", {
+        params: {
+          ...cleanFilters
+        },
+      }
+      );
       setJobs(response.data.results || []);
     } catch (error: any) {
       setError(error.response?.data?.message || "An unexpected error occurred.");
@@ -33,131 +50,138 @@ export function JobsList({ filters }: { filters: Filters }) {
     }
   }
 
+
   if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
   if (error) return <div className="text-red-600 text-center">{error}</div>;
 
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
   const paginatedJobs = jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
 
+
+  //handle Filteration
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedFilters({ ...selectedFilters, [e.target.name]: e.target.value });
+
+  };
+
+  // Apply Filters function
+  const ApplyFilters = () => {
+    setCurrentPage(1); // Reset to page 1 after applying filters
+    // fetchJobs();
+  };
+
+  const resetFilters = () => {
+    setSelectedFilters(filters); // Reset to initial filters'
+    setCurrentPage(1);
+  };
+
+  const handleSalaryChange = (value: number[]) => {
+    if (Array.isArray(value) && value.length === 2) {
+      setSelectedFilters(prev => ({
+        ...prev,
+        salary: value, // Set salary as the range of numbers selected
+      }));
+    }
+  };
+
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p className="text-sm text-gray-500">
-          Showing {paginatedJobs.length} of {jobs.length} jobs
-        </p>
-        <select className="p-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto">
-          <option>Most Recent</option>
-          <option>Highest Salary</option>
-          <option>Most Relevant</option>
-        </select>
+    <div className="flex gap-6 h-full">
+      {/* Sidebar Filter */}
+      <div className="min-w-[250px] max-w-[300px]  p-4 bg-gray-50 rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm">Category</label>
+            <input
+              type="text"
+              name="category_name"
+              value={selectedFilters.category_name}
+              onChange={handleFilterChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm">Location</label>
+            <input
+              type="text"
+              name="location"
+              value={selectedFilters.location}
+              onChange={handleFilterChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm">Salary</label>
+            <span className="text-sm text-muted-foreground">
+              ${filters.salary[0]}k - ${filters.salary[1]}k
+            </span>
+            <Slider
+              min={300}
+              value={selectedFilters.salary}
+              max={3000}
+              step={10}
+              onValueChange={handleSalaryChange}
+            />
+          </div>
+          <div>
+            <label className="block text-sm">Title</label>
+            <input
+              type="text"
+              name="title"
+              value={selectedFilters.title}
+              onChange={handleFilterChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+          <div>
+            <label className="block text-sm">Organization</label>
+            <input
+              type="text"
+              name="organization"
+              value={selectedFilters.organization}
+              onChange={handleFilterChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <Button onClick={ApplyFilters} className="mt-4 w-full">
+            Apply Filters
+          </Button>
+
+          <Button onClick={resetFilters} className="mt-4 w-full">
+            Reset Filters
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {paginatedJobs.map((job: any) => (
-          <JobCard key={job.id} job={job} />
-        ))}
-      </div>
+      {/* Job Listings */}
+      <div className="w-3/4 space-y-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <p className="text-sm text-gray-500">
+            Showing {paginatedJobs.length} of {jobs.length} jobs
+          </p>
+          <select className="p-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto">
+            <option>Most Recent</option>
+            <option>Highest Salary</option>
+            <option>Most Relevant</option>
+          </select>
+        </div>
 
-      {totalPages > 1 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {paginatedJobs.map((job: any) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+
+        {/* Pagination */}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={(page) => setCurrentPage(page)}
         />
-      )}
+      </div>
     </div>
   );
 }
 
-// Helper function to clean description
-function cleanDescription(html: string) {
-  return he.decode(striptags(html));
-}
-
-// Compact and responsive JobCard
-function JobCard({ job }: { job: any }) {
-  return (
-    <Card className="transition-shadow duration-300 hover:shadow-md border border-gray-200 rounded-lg bg-white h-[340px] flex flex-col">
-      <CardContent className="p-4 flex flex-col justify-between flex-1 space-y-3 text-sm">
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <Link href={`/jobs/${job.id}`} className="text-sm font-semibold hover:underline line-clamp-1">
-              {job.title}
-            </Link>
-            {job.organization_logo && (
-              <Image
-                src={job.organization_logo}
-                alt="logo"
-                width={32}
-                height={32}
-                className="rounded-full object-contain"
-              />
-            )}
-          </div>
-
-          <Badge variant="secondary" className="text-xs">{job.organization}</Badge>
-
-          <p className="text-xs text-gray-600 mt-2 line-clamp-4">
-            {cleanDescription(job.description)}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <span className="text-xs text-gray-500">{job.end_date || "Date not available"}</span>
-          <div className="flex gap-2">
-            <SaveJobButton jobId={job.id} jobTitle={job.title} size="sm" />
-            <Link href={`/jobs/${job.encrypted_id}`}>
-              <Button size="sm">View Job</Button>
-            </Link>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-// Pagination Component
-function Pagination({
-  currentPage,
-  totalPages,
-  onPageChange,
-}: {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}) {
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-  return (
-    <div className="flex justify-center items-center flex-wrap gap-2 mt-6">
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={currentPage === 1}
-        onClick={() => onPageChange(currentPage - 1)}
-      >
-        Previous
-      </Button>
-
-      {pages.map((page) => (
-        <Button
-          key={page}
-          size="sm"
-          variant={currentPage === page ? "default" : "outline"}
-          onClick={() => onPageChange(page)}
-        >
-          {page}
-        </Button>
-      ))}
-
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={currentPage === totalPages}
-        onClick={() => onPageChange(currentPage + 1)}
-      >
-        Next
-      </Button>
-    </div>
-  );
-}

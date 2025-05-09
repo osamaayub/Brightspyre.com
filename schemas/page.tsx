@@ -17,3 +17,15 @@ export const SignUpFormSchema=z.object({
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
+
+export const applySchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().optional(),
+  resume: z
+    .any()
+    .refine((file) => file?.[0], "Resume is required"),
+  coverLetter: z.string().optional(),
+  linkedin: z.string().url("Invalid URL").optional(),
+})

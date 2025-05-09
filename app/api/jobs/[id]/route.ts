@@ -7,7 +7,6 @@ export async function GET(
 ) {
   try {
     const { id } = context.params;
-    console.log("id",id);
 
     if (!id) {
       return NextResponse.json({ message: "Missing job ID" }, { status: 400 });

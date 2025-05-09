@@ -24,7 +24,7 @@ import Link from 'next/link';
 export default function JobPage() {
   const { id } = useParams(); // Get dynamic 'id' from the URL
   const [job, setJob] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch job details when 'id' is available and has changed
@@ -73,7 +73,7 @@ export default function JobPage() {
                   <CardTitle className="text-3xl font-bold">{job?.title}</CardTitle>
                   <CardDescription className="text-lg mt-1 text-gray-600">
                     <Link
-                      href={`/companies/${job?.organization}`}
+                      href={`/companies/${job.url}`}
                       className="hover:underline text-blue-600"
                     >
                       {job?.organization}
@@ -86,6 +86,10 @@ export default function JobPage() {
                   <Badge variant="outline" className="text-gray-700 mb-2 sm:mb-0">
                     Position(s): {job?.positions}
                   </Badge>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
+                  {job?.Salary}
+                  
                 </div>
               </div>
             </CardHeader>
@@ -110,8 +114,13 @@ export default function JobPage() {
                 <ApplyButton
                   jobId={job?.id}
                   jobTitle={job?.title}
-                  company={job?.organization}
-                />
+                  company={job?.organization} 
+                  firstName={''} 
+                  lastName={''} 
+                  email={''} 
+                  phone={''} 
+                  linkedin={''} 
+                  coverLetter={''}              />
                 <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
               </div>
             </CardFooter>
@@ -132,8 +141,8 @@ export default function JobPage() {
                 <h3 className="text-lg font-semibold text-center text-gray-800">{job?.organization}</h3>
                 <div className="mt-2">
                   <Image
-                    src={job?.organization_logo}
-                    alt={job?.organization}
+                    src={job.organization_logo}
+                    alt="organization logo"
                     width={50}
                     height={50}
                     className="rounded-full"
@@ -146,7 +155,7 @@ export default function JobPage() {
               <p className="text-muted-foreground text-sm mb-4 text-center">
                 {job?.organization}
               </p>
-              <Link href={`/companies/${job?.organization}`}>
+              <Link href={`/companies/${job.organization}`}>
                 <Button variant="outline" className="w-full text-white bg-blue-600 hover:bg-blue-700">
                   View Profile
                 </Button>

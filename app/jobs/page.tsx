@@ -1,33 +1,26 @@
 "use client";
-import { useState } from "react";
 
+import { useMemo } from "react";
+import { JobsList } from "@/components/jobs-list"; // adjust path based on actual file structure
+import { Filters } from "@/types/filter";
 
-import { JobsList } from "@/components/jobs-list"
-import { JobFilters } from "@/components/job-filters"
+export default function JobPage() {
+  const filters = useMemo(() => ({
+    category_name: "",
+    location: "",
+    salary: [50,200],
+    title: "",
+    city: "",
+    country: "",
+    job_type: "",
+    organization: "",
+  }), []);
+  
 
-export default function JobsPage() {
-  const [filters,setFilters]=useState({
-    jobType:[] as string[],
-    location:[]as string[],
-    experience:[] as string[],
-    salary:[] as number[]
-
-  });
-const handleApplyFilter=(applyFilters:typeof filters)=>{
- setFilters(applyFilters);
-}
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Browse Jobs</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-1">
-          <JobFilters  filters={filters} setFilters={setFilters} onApplyFilters={handleApplyFilter}/>
-        </div>
-        <div className="md:col-span-3">
-          <JobsList filters={filters} />
-        </div>
-      </div>
+    <div className="p-6">
+      {/* You could add filter inputs here and pass updated filters */}
+      <JobsList filters={filters} />
     </div>
-  )
+  );
 }
