@@ -53,11 +53,11 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
-            <DialogTitle>Apply for {jobTitle}</DialogTitle>
+            <DialogTitle className="mt-4">Apply for {jobTitle}</DialogTitle>
             <DialogDescription>Complete the form below to apply for this position at {company}.</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-wrap gap-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="first-name">First name</Label>
