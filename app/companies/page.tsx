@@ -1,45 +1,38 @@
+"use client";
+
 import Link from "next/link"
+import {useState,useEffect}from "react";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import axios from "axios";
+
 
 export default function CompaniesPage() {
-  // Mock companies data
-  const companies = [
-    {
-      id: "techcorp",
-      name: "TechCorp",
-      industry: "Software Development",
-      location: "San Francisco, CA",
-      size: "500-1000 employees",
-      openPositions: 12,
-    },
-    {
-      id: "devinc",
-      name: "DevInc",
-      industry: "Web Development",
-      location: "New York, NY",
-      size: "100-500 employees",
-      openPositions: 8,
-    },
-    {
-      id: "designco",
-      name: "DesignCo",
-      industry: "UI/UX Design",
-      location: "Austin, TX",
-      size: "50-100 employees",
-      openPositions: 5,
-    },
-    {
-      id: "websolutions",
-      name: "WebSolutions",
-      industry: "Web Services",
-      location: "Seattle, WA",
-      size: "100-500 employees",
-      openPositions: 10,
-    },
-  ]
+   const [companies,setCompanies]=useState([]);
+   const [error,setError]=useState<string|null>(null);
+   const [loading,setLoading]=useState<boolean>(true);
+
+
+ useEffect(()=>{
+   fetchJobs();
+ },[]);
+
+  async function fetchJobs(){
+    try{
+    const response=await axios.get("/api/companies");
+    setCompanies(response.data.results||[]);
+    }catch(error:any){
+      setError(error?.response?.data?.message||"companies data not found");
+    }
+    finally{
+      setLoading(false);
+    }
+  }
+  if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
+  if (error) return <div className="text-red-600 text-center">{error}</div>;
+
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,4 +1,15 @@
 "use client";
+
+import { useState, useEffect,useMemo} from "react";
+import axios from "axios";
+
+import { Filters, Job } from "@/types/filter";
+import { JobCard } from "@/components/JobCard";
+import { Pagination } from "@/components/pagination-job";
+
+export function JobsList({ filters }: { filters: Filters }) {
+  const [jobs, setJobs] = useState<Job[]>([]);
+
 import { useState, useEffect } from "react";
 import axios from "axios";
 
@@ -8,6 +19,7 @@ import { Pagination } from "./pagination-card";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<any[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -17,7 +29,7 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   useEffect(() => {
     fetchJobs();
-  }, []);
+  }, [filters]);
 
   async function fetchJobs() {
     try {
@@ -40,6 +52,57 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   const applyFilters = () => {
     setAppliedFilters(activeFilters);
+
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+
+    setActiveFilters({...filters});
+    setAppliedFilters({...filters});
+    setCurrentPage(1);
+  };
+  
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const { title, country, salary, category_name, organization, city } = appliedFilters;
+  
+      const matchesTitle =
+        !title || job?.title?.toLowerCase().includes(title.toLowerCase());
+  
+      const matchesLocation =
+        !country || job?.country?.toLowerCase().includes(country.toLowerCase());
+  
+      const matchesCategory =
+        !category_name ||
+        job?.category_name?.toLowerCase().includes(category_name.toLowerCase());
+  
+      const matchesOrganization =
+        !organization ||
+        job?.organization?.toLowerCase().includes(organization.toLowerCase());
+  
+      const matchesCity =
+        !city || job?.city?.toLowerCase().includes(city.toLowerCase());
+  
+        const matchesSalary =
+        !salary ||
+        salary.length === 0 ||
+        (typeof salary[0] === 'number' && typeof salary[1] ==='number') ||
+        (job.salary >= (salary[0] ?? 0) && job.salary <= (salary[1] ?? Infinity));
+      
+  
+      return (
+        matchesTitle &&
+        matchesLocation &&
+        matchesCategory &&
+        matchesOrganization &&
+        matchesSalary &&
+        matchesCity
+      );
+    });
+  }, [appliedFilters, jobs]);
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+
   };
 
   const resetFilters = () => {
@@ -77,10 +140,14 @@ export function JobsList({ filters }: { filters: Filters }) {
   });
 
   const totalPages = Math.ceil(jobs.length / jobsPerPage);
+
   const paginatedJobs = filteredJobs.slice(
     (currentPage - 1) * jobsPerPage,
     currentPage * jobsPerPage
   );
+
+  {filteredJobs.length===0 &&<div className="text-center text-gray-700">No Jobs available</div>}
+
 
   if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
   if (error) return <div className="text-red-600 text-center">{error}</div>;
@@ -95,7 +162,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <h3 className="text-sm font-medium text-gray-700">Title</h3>
             <input
               type="text"
+
+              value={activeFilters.title}
+
               value={activeFilters.title || ""}
+
               onChange={(e) => handleFilterChange("title", e.target.value)}
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filter by title"
@@ -105,7 +176,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <h3 className="text-sm font-medium text-gray-700">Country</h3>
             <input
               type="text"
+
+              value={activeFilters.country}
+
               value={activeFilters.country || ""}
+
               onChange={(e) => handleFilterChange("country", e.target.value)}
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filter by country"
@@ -115,7 +190,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <h3 className="text-sm font-medium text-gray-700">Category</h3>
             <input
               type="text"
+
+              value={activeFilters.category_name}
+
               value={activeFilters.category_name || ""}
+
               onChange={(e) => handleFilterChange("category_name", e.target.value)}
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filter by category"
@@ -125,7 +204,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <h3 className="text-sm font-medium text-gray-700">Organization</h3>
             <input
               type="text"
+
+              value={activeFilters.organization}
+
               value={activeFilters.organization || ""}
+
               onChange={(e) => handleFilterChange("organization", e.target.value)}
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filter by organization"
@@ -135,7 +218,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <h3 className="text-sm font-medium text-gray-700">City</h3>
             <input
               type="text"
+
+              value={activeFilters.city}
+
               value={activeFilters.city || ""}
+
               onChange={(e) => handleFilterChange("city", e.target.value)}
               className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Filter by city"
@@ -146,7 +233,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             <div className="flex space-x-2">
               <input
                 type="number"
+
+                value={activeFilters.salary[0]}
+
                 value={activeFilters.salary[0] || ""}
+
                 onChange={(e) =>
                   handleFilterChange("salary", [
                     Number(e.target.value),
@@ -182,7 +273,11 @@ export function JobsList({ filters }: { filters: Filters }) {
             onClick={resetFilters}
             className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300 transition duration-200"
           >
+
+            Clear All
+
             Reset
+
           </button>
         </div>
       </div>
