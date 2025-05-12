@@ -40,7 +40,7 @@ export function JobCard({ job }: { job: any }) {
 
           {/* Location & Category */}
           <div className="flex  gap-2  pt-2">
-            {job.city && <Badge className="bg-blue-100 text-blue-800">{job.city}</Badge>}
+            {job.city && <Badge className="bg-blue-100 whitespace-nowrap text-blue-800">{job.city}</Badge>}
             {job.category_name && <Badge className="bg-green-100 whitespace-nowrap mr-2 text-green-800">{job.category_name}</Badge>}
           </div>
         </div>
@@ -54,6 +54,7 @@ export function JobCard({ job }: { job: any }) {
             </Link>
           </div>
         </div>
+
       </CardContent>
     </Card>
   );

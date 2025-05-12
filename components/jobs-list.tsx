@@ -194,7 +194,7 @@ export function JobsList({ filters }: { filters: Filters }) {
             onClick={resetFilters}
             className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300 transition duration-200"
           >
-            Reset
+            Clear All
           </button>
         </div>
       </div>
