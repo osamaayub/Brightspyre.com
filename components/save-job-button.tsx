@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState } from "react"
@@ -64,7 +65,7 @@ export function SaveJobButton({
         </>
       ) : (
         <>
-          <Bookmark className="h-4 w-4 mr-2" />
+          <Bookmark className="h-4 w-4 p-2" />
           Save
         </>
       )}

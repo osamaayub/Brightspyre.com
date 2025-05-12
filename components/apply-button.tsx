@@ -63,7 +63,7 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Apply for {jobTitle}</DialogTitle>
+            <DialogTitle className="mt-4">Apply for {jobTitle}</DialogTitle>
             <DialogDescription>Complete the form below to apply for this position at {company}.</DialogDescription>
           </DialogHeader>
 
@@ -72,7 +72,13 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
               <div className="space-y-1">
                 <Label htmlFor="firstName">First name</Label>
                 <Input id="firstName" {...register("firstName")} />
-                {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.message}</p>}
+                {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.messag
+          <form onSubmit={handleSubmit} className="flex flex-col flex-wrap gap-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="first-name">First name</Label>
+                <Input id="first-name" required />
+
               </div>
               <div className="space-y-1">
                 <Label htmlFor="lastName">Last name</Label>

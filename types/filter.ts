@@ -1,4 +1,5 @@
 
+
   export interface Filters {
     category_name: string;
     salary: number[],
@@ -19,3 +20,13 @@
     salary: number;
   };
   
+
+export interface Filters {
+    category_name: string
+    country: string
+    salary: number[]
+    title:string,
+    organization:string,
+    city:string
+  }
+
