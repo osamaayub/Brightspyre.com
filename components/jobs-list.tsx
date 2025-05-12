@@ -1,46 +1,27 @@
 "use client";
-
-import { useState, useEffect } from "react";
+import { useState, useEffect,useMemo} from "react";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
-import { Filters } from "@/types/filter";
-import { Slider } from "@/components/ui/slider";
+
+import { Filters, Job } from "@/types/filter";
 import { JobCard } from "@/components/JobCard";
 import { Pagination } from "@/components/pagination-job";
 
 export function JobsList({ filters }: { filters: Filters }) {
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [selectedFilters, setSelectedFilters] = useState<Filters>(filters);
-  const jobsPerPage = 100;
+  const [activeFilters, setActiveFilters] = useState<Filters>(filters);
+  const [appliedFilters, setAppliedFilters] = useState<Filters>(filters);
+  const jobsPerPage = 90;
 
   useEffect(() => {
     fetchJobs();
-  }, [selectedFilters, currentPage]);
-
-  function removeEmptyFilters(filters: Filters) {
-    return Object.fromEntries(
-      Object.entries(filters).filter(
-        ([_, value]) =>
-          value !== undefined &&
-          value !== null &&
-          value !== "" &&
-          !(Array.isArray(value) && value.length === 0)
-      )
-    );
-  }
+  }, [filters]);
 
   async function fetchJobs() {
     try {
-      const cleanFilters = removeEmptyFilters(selectedFilters);
-      const response = await axios.get("/api/jobs", {
-        params: {
-          ...cleanFilters
-        },
-      }
-      );
+      const response = await axios.get("/api/jobs");
       setJobs(response.data.results || []);
     } catch (error: any) {
       setError(error.response?.data?.message || "An unexpected error occurred.");
@@ -49,139 +30,197 @@ export function JobsList({ filters }: { filters: Filters }) {
     }
   }
 
+  const handleFilterChange = (filterKey: keyof Filters, value: any) => {
+    setActiveFilters((prevFilters) => ({
+      ...prevFilters,
+      [filterKey]: value,
+    }));
+  };
 
+  const applyFilters = () => {
+    setAppliedFilters(activeFilters);
+    setCurrentPage(1);
+  };
+
+  const resetFilters = () => {
+
+    setActiveFilters({...filters});
+    setAppliedFilters({...filters});
+    setCurrentPage(1);
+  };
+  
+  const filteredJobs = useMemo(() => {
+    return jobs.filter((job) => {
+      const { title, country, salary, category_name, organization, city } = appliedFilters;
+  
+      const matchesTitle =
+        !title || job?.title?.toLowerCase().includes(title.toLowerCase());
+  
+      const matchesLocation =
+        !country || job?.country?.toLowerCase().includes(country.toLowerCase());
+  
+      const matchesCategory =
+        !category_name ||
+        job?.category_name?.toLowerCase().includes(category_name.toLowerCase());
+  
+      const matchesOrganization =
+        !organization ||
+        job?.organization?.toLowerCase().includes(organization.toLowerCase());
+  
+      const matchesCity =
+        !city || job?.city?.toLowerCase().includes(city.toLowerCase());
+  
+        const matchesSalary =
+        !salary ||
+        salary.length === 0 ||
+        (typeof salary[0] === 'number' && typeof salary[1] ==='number') ||
+        (job.salary >= (salary[0] ?? 0) && job.salary <= (salary[1] ?? Infinity));
+      
+  
+      return (
+        matchesTitle &&
+        matchesLocation &&
+        matchesCategory &&
+        matchesOrganization &&
+        matchesSalary &&
+        matchesCity
+      );
+    });
+  }, [appliedFilters, jobs]);
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const paginatedJobs = filteredJobs.slice(
+    (currentPage - 1) * jobsPerPage,
+    currentPage * jobsPerPage
+  );
+  {filteredJobs.length===0 &&<div className="text-center text-gray-700">No Jobs available</div>}
 
   if (loading) return <div className="text-center text-gray-600">Loading jobs...</div>;
   if (error) return <div className="text-red-600 text-center">{error}</div>;
 
-  const totalPages = Math.ceil(jobs.length / jobsPerPage);
-  const paginatedJobs = jobs.slice((currentPage - 1) * jobsPerPage, currentPage * jobsPerPage);
-
-
-  //handle Filteration
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFilters({ ...selectedFilters, [e.target.name]: e.target.value });
-
-  };
-
-  // Apply Filters function
-  function ApplyFilters() {
-    setCurrentPage(1);
-  }
-
-
-  const resetFilters = () => {
-    setSelectedFilters(filters); // Reset to initial filters'
-  };
-
-  const handleSalaryChange = (value: number[]) => {
-    if (Array.isArray(value) && value.length === 2) {
-      setSelectedFilters(prev => ({
-        ...prev,
-        salary: value, // Set salary as the range of numbers selected
-      }));
-    }
-  };
-
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-full">
-      {/* Sidebar Filter */}
-      <div className="min-w-[250px] max-w-[300px] p-4 bg-gray-50 rounded-lg shadow-md">
-        <h3 className="text-lg font-semibold mb-4">Filter Jobs</h3>
-
+    <div className="flex flex-col lg:flex-row">
+      {/* Sidebar */}
+      <div className="w-full lg:w-1/4 p-4 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-50">
+        <h2 className="text-lg font-semibold mb-4 text-gray-800">Filters</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm">Category</label>
+            <h3 className="text-sm font-medium text-gray-700">Title</h3>
             <input
               type="text"
-              name="category_name"
-              value={selectedFilters.category_name}
-              onChange={handleFilterChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              value={activeFilters.title}
+              onChange={(e) => handleFilterChange("title", e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Filter by title"
             />
           </div>
           <div>
-            <label className="block text-sm">Location</label>
+            <h3 className="text-sm font-medium text-gray-700">Country</h3>
             <input
               type="text"
-              name="location"
-              value={selectedFilters.location}
-              onChange={handleFilterChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              value={activeFilters.country}
+              onChange={(e) => handleFilterChange("country", e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Filter by country"
             />
           </div>
           <div>
-            <label className="block text-sm">Salary</label>
-            <span className="text-sm text-muted-foreground">
-              ${filters.salary[0]}k - ${filters.salary[1]}k
-            </span>
-            <Slider
-              min={300}
-              value={selectedFilters.salary}
-              max={3000}
-              step={10}
-              onValueChange={handleSalaryChange}
+            <h3 className="text-sm font-medium text-gray-700">Category</h3>
+            <input
+              type="text"
+              value={activeFilters.category_name}
+              onChange={(e) => handleFilterChange("category_name", e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Filter by category"
             />
           </div>
           <div>
-            <label className="block text-sm">Title</label>
+            <h3 className="text-sm font-medium text-gray-700">Organization</h3>
             <input
               type="text"
-              name="title"
-              value={selectedFilters.title}
-              onChange={handleFilterChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              value={activeFilters.organization}
+              onChange={(e) => handleFilterChange("organization", e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Filter by organization"
             />
           </div>
           <div>
-            <label className="block text-sm">Organization</label>
+            <h3 className="text-sm font-medium text-gray-700">City</h3>
             <input
               type="text"
-              name="organization"
-              value={selectedFilters.organization}
-              onChange={handleFilterChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              value={activeFilters.city}
+              onChange={(e) => handleFilterChange("city", e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Filter by city"
             />
           </div>
-
-          <Button onClick={ApplyFilters} className="mt-4 w-full">
-            Apply Filters
-          </Button>
-
-          <Button onClick={resetFilters} className="mt-4 w-full">
-            Reset Filters
-          </Button>
+          <div>
+            <h3 className="text-sm font-medium text-gray-700">Salary Range</h3>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                value={activeFilters.salary[0]}
+                onChange={(e) =>
+                  handleFilterChange("salary", [
+                    Number(e.target.value),
+                    activeFilters.salary[1],
+                  ])
+                }
+                className="w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Min"
+              />
+              <input
+                type="number"
+                value={activeFilters.salary[1] || ""}
+                onChange={(e) =>
+                  handleFilterChange("salary", [
+                    activeFilters.salary[0],
+                    Number(e.target.value),
+                  ])
+                }
+                className="w-1/2 p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Max"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex space-x-2 justify-start">
+          <button
+            onClick={applyFilters}
+            className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded hover:bg-blue-600 transition duration-200"
+          >
+            Apply
+          </button>
+          <button
+            onClick={resetFilters}
+            className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded hover:bg-gray-300 transition duration-200"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
-      {/* Job Listings */}
-      <div className="flex-1 space-y-10">
+      {/* Main Content */}
+      <div className="w-full lg:w-3/4 p-4 space-y-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            Showing {paginatedJobs.length} of {jobs.length} jobs
+            Showing {paginatedJobs.length} of {filteredJobs.length}
           </p>
-          <select className="p-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto">
-            <option>Most Recent</option>
-            <option>Highest Salary</option>
-            <option>Most Relevant</option>
-          </select>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {paginatedJobs.map((job: any) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedJobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
         </div>
 
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-        />
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
-
   );
 }
-

@@ -1,24 +1,21 @@
 
   export interface Filters {
     category_name: string;
-    location: string;
-    salary: number[];
+    salary: number[],
     title: string;
     city: string;
     country: string;
-    job_type: string;
     organization: string;
   }
   
+  
   export type Job = {
+    id: string;
     title: string;
-    location: string;
-    organization: string;
+    country: string;
+    city: string;
     category_name: string;
-    description?: string;
+    organization: string;
     salary: number;
   };
   
-  export type JobsApiResponse = {
-    results: Job[];
-  };

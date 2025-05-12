@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 
 export function JobCard({ job }: { job: any }) {
   return (
-    <Card className="flex flex-col justify-between h-full shadow-lg border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
+    <Card className="flex flex-col justify-between w-full h-full shadow-lg border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
       <CardContent className="p-6 flex flex-col space-y-4 h-full">
         {/* Header with Logo */}
         <div className="flex items-center justify-between">
@@ -17,13 +17,13 @@ export function JobCard({ job }: { job: any }) {
               <Image
                 src={job.organization_logo}
                 alt="Organization Logo"
-                width={64}
-                height={64}
-                className="rounded-full object-cover"
+                width={48}
+                height={48}
+                className="rounded-full"
               />
             )}
           </div>
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col flex-nowrap items-end">
             <p className="text-sm text-gray-500 whitespace-nowrap">{job.organizaion}</p>
             <p className="text-xs text-gray-400">{job.country}</p>
           </div>
@@ -31,17 +31,17 @@ export function JobCard({ job }: { job: any }) {
 
         {/* Job Info */}
         <div className="flex flex-col flex-grow space-y-2">
-          <h3 className="text-xl font-semibold text-gray-800">
-            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 transition-colors">
+          <h3 className="text-base font-semibold text-gray-800 truncate">
+            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 whitespace-nowrap transition-colors">
               {job.title}
             </Link>
           </h3>
-          <p className="text-sm text-gray-600 line-clamp-4">{cleanDescription(job.description || "")}</p>
+          <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(job.description)}</p>
 
           {/* Location & Category */}
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex  gap-2  pt-2">
             {job.city && <Badge className="bg-blue-100 text-blue-800">{job.city}</Badge>}
-            {job.category_name && <Badge className="bg-green-100 text-green-800">{job.category_name}</Badge>}
+            {job.category_name && <Badge className="bg-green-100 whitespace-nowrap mr-2 text-green-800">{job.category_name}</Badge>}
           </div>
         </div>
 

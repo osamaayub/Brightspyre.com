@@ -1,26 +1,19 @@
 "use client";
-
-import { useMemo } from "react";
-import { JobsList } from "@/components/jobs-list"; // adjust path based on actual file structure
+import { JobsList } from "@/components/jobs-list";
 import { Filters } from "@/types/filter";
+import { useState } from "react";
 
 export default function JobPage() {
-  const filters = useMemo(() => ({
-    category_name: "",
-    location: "",
-    salary: [50,200],
+  const [filters, setFilters] = useState<Filters>({
     title: "",
+    category_name: "",
     city: "",
     country: "",
-    job_type: "",
-    organization: "",
-  }), []);
-  
+    salary: [0, 0],  // Salary range,
+    organization:""
+  });
 
   return (
-    <div className="p-6">
-      {/* You could add filter inputs here and pass updated filters */}
-      <JobsList filters={filters} />
-    </div>
+    <JobsList filters={filters}/>
   );
 }
