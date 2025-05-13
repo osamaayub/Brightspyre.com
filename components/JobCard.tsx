@@ -1,3 +1,4 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { SaveJobButton } from "./save-job-button";
@@ -5,26 +6,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cleanDescription } from "@/helpers/page";
 import { Badge } from "@/components/ui/badge";
+import { Job } from "@/types/filter";
 
-export function JobCard({ job }: { job: any }) {
+const JobCard=({ job }: { job: Job })=> {
   return (
-    <Card className="flex flex-col justify-between w-full h-full shadow-lg border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300">
+    <Card className=" group flex flex-col hover:rotate-[0.5deg] justify-between w-full h-full shadow-md border border-gray-200 rounded-xl overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl hover:border-blue-400 hover:bg-blue-50">
       <CardContent className="p-6 flex flex-col space-y-4 h-full">
         {/* Header with Logo */}
         <div className="flex items-center justify-between">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100">
+          <div className="w-16 h-16 overflow-hidden">
             {typeof job.organization_logo === 'string' && job.organization_logo.startsWith('http') && (
               <Image
                 src={job.organization_logo}
                 alt="Organization Logo"
                 width={48}
                 height={48}
-                className="rounded-full"
+                className="rounded-full transition-transform duration-200 group-hover:scale-100"
               />
             )}
           </div>
-          <div className="flex flex-col flex-nowrap items-end">
-            <p className="text-sm text-gray-500 whitespace-nowrap">{job.organizaion}</p>
+          <div className="flex flex-row  justify-content-evenly flex-nowrap ">
+            {/* <p className="text-sm text-gray-500 whitespace-nowrap">{job.organization}</p> */}
             <p className="text-xs text-gray-400">{job.country}</p>
           </div>
         </div>
@@ -32,9 +34,10 @@ export function JobCard({ job }: { job: any }) {
         {/* Job Info */}
         <div className="flex flex-col flex-grow space-y-2">
           <h3 className="text-base font-semibold text-gray-800 truncate">
-            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 whitespace-nowrap transition-colors">
+            <Link href={`/jobs/${job.id}`} className="hover:text-blue-600 transition-colors duration-300 whitespace-nowrap">
               {job.title}
             </Link>
+
           </h3>
           <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(job.description)}</p>
 
@@ -59,3 +62,5 @@ export function JobCard({ job }: { job: any }) {
     </Card>
   );
 }
+
+export default JobCard;
