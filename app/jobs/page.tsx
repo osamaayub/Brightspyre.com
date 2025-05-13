@@ -8,12 +8,9 @@ import { useState } from "react";
 
 export default function JobPage() {
   const [filters, setFilters] = useState<Filters>({
-    title: "",
-    category_name: "",
-    city: "",
-    country: "",
-    salary: [0, 0],  // Salary range,
-    organization:""
+    category_name:[],
+    city: [],
+    organization:[]
   });
 
   return (

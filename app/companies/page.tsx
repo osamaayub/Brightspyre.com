@@ -5,12 +5,12 @@ import {useState,useEffect}from "react";
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 import axios from "axios";
 
+import { Company } from "@/types/filter";
 
 export default function CompaniesPage() {
-   const [companies,setCompanies]=useState([]);
+   const [companies,setCompanies]=useState<Company[]>([]);
    const [error,setError]=useState<string|null>(null);
    const [loading,setLoading]=useState<boolean>(true);
 
@@ -22,7 +22,7 @@ export default function CompaniesPage() {
   async function fetchJobs(){
     try{
     const response=await axios.get("/api/companies");
-    setCompanies(response.data.results||[]);
+    setCompanies(response.data?.results||[]);
     }catch(error:any){
       setError(error?.response?.data?.message||"companies data not found");
     }
@@ -47,15 +47,15 @@ export default function CompaniesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {companies.map((company) => (
-          <Card key={company.id}>
+          <Card key={company?.id}>
             <CardHeader>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold">
-                  {company.name.charAt(0)}
+                  {company.organization?.charAt(0)}
                 </div>
                 <div>
-                  <CardTitle>{company.name}</CardTitle>
-                  <CardDescription>{company.industry}</CardDescription>
+                  <CardTitle>{company?.organization}</CardTitle>
+                  <CardDescription>{company?.category_name}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -63,20 +63,16 @@ export default function CompaniesPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Location:</span>
-                  <span>{company.location}</span>
+                  <span>{company.city}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Company Size:</span>
-                  <span>{company.size}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Open Positions:</span>
-                  <Badge>{company.openPositions}</Badge>
+                  <span>{company.positions}</span>
                 </div>
               </div>
             </CardContent>
             <CardFooter>
-              <Link href={`/companies/${company.id}`} className="w-full">
+              <Link href={`/companies/${company?.id}`} className="w-full">
                 <Button variant="outline" className="w-full">
                   View Profile
                 </Button>

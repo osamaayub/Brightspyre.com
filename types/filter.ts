@@ -1,16 +1,17 @@
+import { Key } from "react";
 
 
   export interface Filters {
-    category_name: string;
-    salary: number[],
-    title: string;
-    city: string;
-    country: string;
-    organization: string;
+    category_name: string[];
+    city: string[],
+    organization: string[]
   }
   
   
   export type Job = {
+    organization_logo:string;
+    encrypted_id:string;
+    description:string;
     id: string;
     title: string;
     country: string;
@@ -21,6 +22,15 @@
   };
   
 
+  export type Company={
+    id: Key | null | undefined;
+    organization:string,
+    city:string,
+    positions:string,
+    category_name:string
+  }
+
+
 export interface Filters {
     category_name: string
     country: string
@@ -29,4 +39,5 @@ export interface Filters {
     organization:string,
     city:string
   }
+
 
