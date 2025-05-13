@@ -1,5 +1,6 @@
 import { Key } from "react";
 
+
   export interface Filters {
     category_name: string[];
     city: string[],
@@ -20,6 +21,7 @@ import { Key } from "react";
     salary: number;
   };
   
+
   export type Company={
     id: Key | null | undefined;
     organization:string,
@@ -27,3 +29,15 @@ import { Key } from "react";
     positions:string,
     category_name:string
   }
+
+
+export interface Filters {
+    category_name: string
+    country: string
+    salary: number[]
+    title:string,
+    organization:string,
+    city:string
+  }
+
+
