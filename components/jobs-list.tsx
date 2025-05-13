@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+
 
 
 import { useState, useEffect,useMemo} from "react";
@@ -10,15 +10,6 @@ import { Filters, Job } from "@/types/filter";
 import  JobCard  from "@/components/JobCard";
 import { Pagination } from "@/components/pagination-job";
 
-export function JobsList({ filters }: { filters: Filters }) {
-  const [jobs, setJobs] = useState<Job[]>([]);
-
-import { useState, useEffect } from "react";
-import axios from "axios";
-
-import { Filters } from "@/types/filter";
-import { JobCard } from "./job-card";
-import { Pagination } from "./pagination-card";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [jobs, setJobs] = useState<any[]>([]);
