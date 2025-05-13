@@ -81,9 +81,21 @@ export function JobsList({ filters }: { filters: Filters }) {
   }, [jobs]);
 
   const uniqueCities = useMemo(() => {
-    const cities = jobs.map((job) => job.city?.toLowerCase());
-    return Array.from(new Set(cities)).filter(Boolean);
+    const cities = jobs.flatMap((job) => {
+      if (!job.city) return [];
+  
+      return job.city
+        .split(',')
+        .map(str => str.trim().toLowerCase()) // trim + lowercase
+        .filter(Boolean); // remove empty strings
+    });
+  
+    return Array.from(new Set(cities)); // remove duplicates
   }, [jobs]);
+  
+  
+  
+ 
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
   const paginatedJobs = filteredJobs.slice(
