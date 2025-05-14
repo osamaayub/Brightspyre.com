@@ -45,40 +45,32 @@ export function JobsList({ filters }: { filters: Filters }) {
     }));
   };
 
-  const applyFilters = () => {
-    setAppliedFilters(activeFilters);
-    setCurrentPage(1);
-  };
+  // const applyFilters = () => {
+  //   setAppliedFilters(activeFilters);
+  //   setCurrentPage(1);
+  // };
 
+  // reset Filters
   const resetFilters = () => {
     const emptyFilters = {
       category_name: [],
       organization: [],
       city: [],
-      country: "",
-      title: "",
-      salary: [],
     };
     setActiveFilters(emptyFilters);
     setAppliedFilters(emptyFilters);
     setCurrentPage(1);
   };
 
+  //filter jobs on the basis of filters
   const filteredJobs = useMemo(() => {
     return jobs.filter((job) => {
       const {
-        title,
-        country,
-        salary = [],
         category_name,
         organization,
         city,
       } = appliedFilters;
 
-      const matchesTitle =
-        !title || job.title?.toLowerCase().includes(title.toLowerCase());
-      const matchesCountry =
-        !country || job.country?.toLowerCase().includes(country.toLowerCase());
       const matchesCategory =
         category_name.length === 0 ||
         category_name.includes(job.category_name?.toLowerCase());
@@ -88,17 +80,10 @@ export function JobsList({ filters }: { filters: Filters }) {
       const matchesCity =
         city.length === 0 ||
         city.includes(job.city?.toLowerCase());
-      const matchesSalary =
-        salary.length === 0 ||
-        (job.salary >= (salary[0] ?? 0) && job.salary <= (salary[1] ?? Infinity));
-
       return (
-        matchesTitle &&
-        matchesCountry &&
         matchesCategory &&
         matchesOrganization &&
-        matchesCity &&
-        matchesSalary
+        matchesCity
       );
     });
   }, [appliedFilters, jobs]);
@@ -245,32 +230,8 @@ export function JobsList({ filters }: { filters: Filters }) {
           )}
         </div>
 
-        {/* Text Inputs */}
-        <div className="mt-4 space-y-3">
-          <input
-            type="text"
-            placeholder="Job Title"
-            className="w-full p-2 border rounded"
-            value={activeFilters.title || ""}
-            onChange={(e) => handleFilterChange("title", e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Country"
-            className="w-full p-2 border rounded"
-            value={activeFilters.country || ""}
-            onChange={(e) => handleFilterChange("country", e.target.value)}
-          />
-        </div>
-
         {/* Actions */}
         <div className="flex items-center justify-between mt-4 gap-2">
-          <button
-            onClick={applyFilters}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Apply
-          </button>
           <button
             onClick={resetFilters}
             className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"

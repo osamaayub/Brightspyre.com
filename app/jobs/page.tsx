@@ -1,7 +1,7 @@
 "use client";
 
 
-import { JobsList } from "@/components/jobs-list";
+import { JobsList } from "@/components/Jobs-list";
 import { Filters } from "@/types/filter";
 import { useState } from "react";
 
@@ -11,18 +11,6 @@ export default function JobPage() {
     category_name:[],
     city: [],
     organization:[]
-  });
-
-  return (
-    <JobsList filters={filters}/>
-export default function JobsPage() {
-  const[filters,setFilters]=useState<Filters>({
-    category_name:"",
-    title:"",
-    country:"",
-    organization:"",
-    city:" ",
-    salary:[0,0]
   });
   return (
     <div className="container mx-auto px-4 py-8">
