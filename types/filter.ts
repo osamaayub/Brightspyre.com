@@ -5,6 +5,7 @@ import { Key } from "react";
     category_name: string[];
     city: string[],
     organization: string[]
+    country:string[]
   }
   
   
