@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect, useMemo, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from "react";
+import { useState, useEffect, useMemo} from "react";
 import axios from "axios";
 import { Filters } from "@/types/filter";
 import JobCard from "@/components/JobCard";
 import { Pagination } from "@/components/pagination-job";
-import { count } from "console";
+
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [state, setState] = useState({
