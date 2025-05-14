@@ -17,11 +17,8 @@ export default function JobPage() {
       <h1 className="text-4xl font-bold text-center mb-8">Browse Jobs</h1>
 
       {/* Display Jobs List */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="md:col-span-3">
+      {/* <div className="grid grid-cols-1 md:grid-cols-4 gap-6"> */}
           <JobsList filters={filters} />
-        </div>
-      </div>
     </div>
   );
 }

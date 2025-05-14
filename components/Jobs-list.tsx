@@ -88,11 +88,24 @@ export function JobsList({ filters }: { filters: Filters }) {
     });
   }, [appliedFilters, jobs]);
 
+  //categories filter
   const uniqueCategories = useMemo(() => {
-    return Array.from(
-      new Set(jobs.map((job) => job.category_name?.toLowerCase()).filter(Boolean))
-    );
+    const categorySet = new Set<string>();
+  
+    jobs.forEach((job) => {
+      if (!job.category_name) return;
+  
+      job.category_name
+        .toLowerCase()
+        .split(/[,&]/)
+        .map((cat: string) => cat.trim())
+        .filter(Boolean)
+        .forEach((cat: string) => categorySet.add(cat));
+    });
+  
+    return Array.from(categorySet).sort();
   }, [jobs]);
+  
 
   const uniqueOrganizations = useMemo(() => {
     return Array.from(
@@ -100,21 +113,66 @@ export function JobsList({ filters }: { filters: Filters }) {
     );
   }, [jobs]);
 
+  //location filter
   const uniqueCities = useMemo(() => {
-    return Array.from(
-      new Set(
-        jobs.flatMap((job) =>
-          job.city
-            ? job.city
-                .split(",")
-                .map((c: string) => c.trim().toLowerCase())
-                .filter(Boolean)
-            : []
+    const separators = /[,().\-–;]| and /gi;
+  
+    const noiseWords = ['district', 'remote', 'frequent travel', 'pakistan', 'also travel', 'if required'];
+  
+    const cityCorrections: Record<string, string> = {
+      'islmabad': 'islamabad',
+      'i khan': 'd.i khan',
+      'dik khan': 'd.i khan',
+      'balouchistan': 'balochistan',
+      'mandi bahaudin': 'mandi bahauddin',
+    };
+  
+    const citiesSet = new Set<string>();
+  
+    jobs.forEach((job) => {
+      if (!job.city) return;
+  
+      const parts = job.city
+        .toLowerCase()
+        .split(separators)
+        .map((part: string) => part.trim())
+        .filter(
+          (part: string | string[]) =>
+            part.length > 2 &&
+            !noiseWords.some((noise) => part.includes(noise))
         )
-      )
-    );
+        .map((part: string | number) => cityCorrections[part] || part); // correct typos
+  
+      parts.forEach((city: string) => citiesSet.add(city));
+    });
+  
+    return Array.from(citiesSet).sort();
   }, [jobs]);
+  
+  
+  
+  
+  
+  
+  
+  
 
+  
+
+  
+  
+  
+ 
+  
+  
+  
+
+  
+
+  
+ 
+
+  
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
   const paginatedJobs = filteredJobs.slice(
@@ -128,7 +186,7 @@ export function JobsList({ filters }: { filters: Filters }) {
   return (
     <div className="flex flex-col lg:flex-row">
       {/* Filters Sidebar */}
-      <div className="w-full lg:w-1/4 p-4 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-50">
+      <div className="w-2/4 lg:w-1/4 p-4 border-b  rounded lg:border-b-0 lg:border-r border-gray-300 bg-gray-300">
         <h2 className="text-lg font-semibold mb-4 text-gray-800">Filters</h2>
 
         {/* Category Accordion */}
@@ -178,8 +236,8 @@ export function JobsList({ filters }: { filters: Filters }) {
           </h3>
           {filterToggles.organization && (
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueOrganizations.map((org) => (
-                <label key={org} className="text-sm text-gray-600">
+              {uniqueOrganizations.map((org,index) => (
+                <label key={index} className="text-sm text-gray-600">
                   <input
                     type="checkbox"
                     className="mr-2"
@@ -206,12 +264,12 @@ export function JobsList({ filters }: { filters: Filters }) {
               setFilterToggles((prev) => ({ ...prev, city: !prev.city }))
             }
           >
-            {filterToggles.city ? "▲" : "▼"} City
+            {filterToggles.city ? "▲" : "▼"} Location
           </h3>
           {filterToggles.city && (
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueCities.map((city) => (
-                <label key={city} className="text-sm text-gray-600">
+              {uniqueCities.map((city,index) => (
+                <label key={`${city}-${index}`} className="text-sm text-gray-600">
                   <input
                     type="checkbox"
                     className="mr-2"
@@ -234,9 +292,9 @@ export function JobsList({ filters }: { filters: Filters }) {
         <div className="flex items-center justify-between mt-4 gap-2">
           <button
             onClick={resetFilters}
-            className="border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
+            className="w-full border px-4 py-2 rounded text-gray-700 hover:bg-gray-100"
           >
-            Reset
+            Clear All
           </button>
         </div>
       </div>

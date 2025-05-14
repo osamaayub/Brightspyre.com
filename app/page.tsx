@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { FeaturedJobs } from "@/components/featured-jobs"
 import { HeroSection } from "@/components/hero-section"
 
 export default function Home() {
@@ -16,7 +15,7 @@ export default function Home() {
             <Button variant="outline">View All Jobs</Button>
           </Link>
         </div>
-        <FeaturedJobs />
+        {/* <FeaturedJobs /> */}
       </section>
 
       <section className="my-12">
