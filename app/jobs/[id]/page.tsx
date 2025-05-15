@@ -44,8 +44,14 @@ export default function JobPage() {
     }
   };
 
-  if (loading) return <div className="text-center py-12 text-lg font-medium">Loading...</div>;
-  if (error) return <div className="text-center py-12 text-red-600 font-semibold">{error}</div>;
+  if (loading)
+    return (
+      <div className="text-center py-12 text-lg font-medium">Loading...</div>
+    );
+  if (error)
+    return (
+      <div className="text-center py-12 text-red-600 font-semibold">{error}</div>
+    );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -58,15 +64,18 @@ export default function JobPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Job Details */}
         <div className="lg:col-span-2 space-y-8">
           <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
             <CardHeader className="pb-4 border-b border-gray-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <CardTitle className="text-3xl font-extrabold text-gray-900">{job?.title}</CardTitle>
-                  <CardDescription className="text-lg mt-1 text-gray-600">
+                <div className="min-w-0">
+                  {/* min-w-0 to allow text truncation and prevent overflow */}
+                  <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">
+                    {job?.title}
+                  </CardTitle>
+                  <CardDescription className="text-base sm:text-lg mt-1 max-w-full sm:max-w-[650px] text-gray-600 truncate">
                     <Link
                       href={`/companies/${job.url}`}
                       className="hover:underline text-blue-600 font-medium"
@@ -76,19 +85,19 @@ export default function JobPage() {
                     • {job?.city}, {job?.country}
                   </CardDescription>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-semibold">
+                <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end">
+                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-semibold text-sm sm:text-base whitespace-nowrap">
                     {job?.category_name}
                   </Badge>
                   <Badge
                     variant="outline"
-                    className="text-gray-700 px-3 py-1 rounded-md font-medium"
+                    className="text-gray-700 px-3 py-1 rounded-md font-medium text-sm sm:text-base whitespace-nowrap"
                   >
                     Positions: {job?.positions}
                   </Badge>
                 </div>
                 {job?.Salary && (
-                  <div className="text-gray-900 font-semibold text-lg mt-3 sm:mt-0">
+                  <div className="text-gray-900 font-semibold text-base sm:text-lg mt-3 sm:mt-0 whitespace-nowrap">
                     {job.Salary}
                   </div>
                 )}
@@ -97,7 +106,7 @@ export default function JobPage() {
 
             <CardContent className="space-y-8">
               <section>
-                <h3 className="text-2xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">
                   Job Description
                 </h3>
                 <div
@@ -109,15 +118,19 @@ export default function JobPage() {
               <Separator />
 
               <section>
-                <h3 className="text-2xl font-semibold mb-2 text-gray-800 border-b border-gray-300 pb-2">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-800 border-b border-gray-300 pb-2">
                   Job End Date
                 </h3>
-                <p className="text-gray-600 text-lg">{job?.end_date}</p>
+                <p className="text-gray-600 text-base sm:text-lg">{job?.end_date}</p>
               </section>
             </CardContent>
 
             <CardFooter className="flex flex-wrap gap-4 justify-center sm:justify-start pt-6 border-t border-gray-200">
-              <ApplyButton jobId={job?.id} jobTitle={job?.title} company={job?.organization} />
+              <ApplyButton
+                jobId={job?.id}
+                jobTitle={job?.title}
+                company={job?.organization}
+              />
               <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
             </CardFooter>
           </Card>
@@ -127,10 +140,12 @@ export default function JobPage() {
         <div>
           <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-gray-900">Company Information</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 whitespace-nowrap">
+                Company Information
+              </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center text-center space-y-4">
-              <div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-4xl font-bold text-gray-400">
+            <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-4xl font-bold text-gray-400">
                 {job?.organization?.charAt(0)}
                 {job.organization_logo && (
                   <Image
@@ -142,8 +157,10 @@ export default function JobPage() {
                   />
                 )}
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">{job?.organization}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6">
+              <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
+                {job?.organization}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6 max-w-full truncate">
                 {cleanDescription(job?.description)}
               </p>
               <Link href={`/companies/${job.url}`}>

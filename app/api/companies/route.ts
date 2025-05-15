@@ -11,10 +11,6 @@ export async function GET(req: NextRequest) {
         }
       }
     );
-
-    console.log(response.data);
-  
-    
     // Return the filtered company data
     return NextResponse.json(response.data.results);
   } catch (error: any) {
