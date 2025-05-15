@@ -28,7 +28,8 @@ import { Key } from "react";
     organization:string,
     city:string,
     positions:string,
-    category_name:string
+    category_name:string,
+    url:string
   }
 
 

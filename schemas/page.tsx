@@ -25,7 +25,17 @@ export const applySchema = z.object({
   phone: z.string().optional(),
   resume: z
     .any()
-    .refine((file) => file?.[0], "Resume is required"),
+    .refine((files) => files?.length === 1, "Resume is required")
+    .refine(
+      (files) =>
+        files?.[0]?.size <= 5 * 1024 * 1024, // max 5MB
+      "Max file size is 5MB"
+    )
+    .refine(
+      (files) =>
+        ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"].includes(files?.[0]?.type),
+      "Only PDF, DOC, DOCX files are accepted"
+    ),
   coverLetter: z.string().optional(),
   linkedin: z.string().url("Invalid URL").optional(),
 })

@@ -1,9 +1,7 @@
 "use client"
 
-import type React from "react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button } from "@/components/ui/button"
@@ -21,8 +19,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { applySchema } from "@/schemas/page"
 import { ApplyButtonProps } from "@/types/type"
+import { z } from "zod"
 
+const formSchema = applySchema
 
+type ApplicationFormInputs = z.infer<typeof formSchema>
 
 export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
   const [open, setOpen] = useState(false)
@@ -34,14 +35,22 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<ApplyButtonProps>({
-    resolver: zodResolver(applySchema),
+  } = useForm<ApplicationFormInputs>({
+    resolver: zodResolver(formSchema),
   })
 
-  const onSubmit = async (data: ApplyButtonProps) => {
+  const onSubmit = async (data: ApplicationFormInputs) => {
     setIsSubmitting(true)
 
-    // Simulate API call
+    // Example API logic
+    console.log("Submitted Data:", {
+      ...data,
+      jobId,
+      jobTitle,
+      company,
+      resume: data.resume?.[0], // actual file
+    })
+
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
     setIsSubmitting(false)
@@ -64,7 +73,9 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
         <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="mt-4">Apply for {jobTitle}</DialogTitle>
-            <DialogDescription>Complete the form below to apply for this position at {company}.</DialogDescription>
+            <DialogDescription>
+              Complete the form below to apply for this position at {company}.
+            </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -72,48 +83,75 @@ export function ApplyButton({ jobId, jobTitle, company }: ApplyButtonProps) {
               <div className="space-y-1">
                 <Label htmlFor="firstName">First name</Label>
                 <Input id="firstName" {...register("firstName")} />
-                {errors.firstName && <p className="text-sm text-red-500">{errors.firstName.messag
-          <form onSubmit={handleSubmit} className="flex flex-col flex-wrap gap-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="first-name">First name</Label>
-                <Input id="first-name" required />
-
+                {errors.firstName && (
+                  <p className="text-sm text-red-500">{errors.firstName.message}</p>
+                )}
               </div>
               <div className="space-y-1">
                 <Label htmlFor="lastName">Last name</Label>
                 <Input id="lastName" {...register("lastName")} />
-                {errors.lastName && <p className="text-sm text-red-500">{errors.lastName.message}</p>}
+                {errors.lastName && (
+                  <p className="text-sm text-red-500">{errors.lastName.message}</p>
+                )}
               </div>
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" {...register("email")} />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="phone">Phone number</Label>
               <Input id="phone" type="tel" {...register("phone")} />
+              {errors.phone && (
+                <p className="text-sm text-red-500">{errors.phone.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="resume">Resume</Label>
-              <Input id="resume" type="file" {...register("resume")} accept=".pdf,.doc,.docx" />
-              <p className="text-xs text-muted-foreground mt-1">Accepted formats: PDF, DOC, DOCX. Max size: 5MB.</p>
-              {errors.resume && <p className="text-sm text-red-500">{errors.resume.message}</p>}
+              <Input
+                id="resume"
+                type="file"
+                {...register("resume")}
+                accept=".pdf,.doc,.docx"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Accepted formats: PDF, DOC, DOCX. Max size: 5MB.
+              </p>
+              {errors.resume && typeof errors.resume.message==="string" &&(
+                <p className="text-sm text-red-500">{errors?.resume?.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="coverLetter">Cover letter (optional)</Label>
-              <Textarea id="coverLetter" rows={5} placeholder="Tell us why you're a good fit" {...register("coverLetter")} />
+              <Textarea
+                id="coverLetter"
+                rows={5}
+                placeholder="Tell us why you're a good fit"
+                {...register("coverLetter")}
+              />
+              {errors.coverLetter && (
+                <p className="text-sm text-red-500">{errors.coverLetter.message}</p>
+              )}
             </div>
 
             <div className="space-y-1">
               <Label htmlFor="linkedin">LinkedIn profile (optional)</Label>
-              <Input id="linkedin" type="url" placeholder="https://linkedin.com/in/yourprofile" {...register("linkedin")} />
-              {errors.linkedin && <p className="text-sm text-red-500">{errors.linkedin.message}</p>}
+              <Input
+                id="linkedin"
+                type="url"
+                placeholder="https://linkedin.com/in/osamaayub"
+                {...register("linkedin")}
+              />
+              {errors.linkedin && (
+                <p className="text-sm text-red-500">{errors.linkedin.message}</p>
+              )}
             </div>
 
             <DialogFooter className="pt-4">

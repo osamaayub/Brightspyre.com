@@ -22,6 +22,7 @@ export default function CompaniesPage() {
   async function fetchJobs(){
     try{
     const response=await axios.get("/api/companies");
+    console.log(companies);
     setCompanies(response.data?.results||[]);
     }catch(error:any){
       setError(error?.response?.data?.message||"companies data not found");
@@ -47,15 +48,15 @@ export default function CompaniesPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {companies.map((company) => (
-          <Card key={company?.id}>
+          <Card key={company.id}>
             <CardHeader>
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold">
                   {company.organization?.charAt(0)}
                 </div>
                 <div>
-                  <CardTitle>{company?.organization}</CardTitle>
-                  <CardDescription>{company?.category_name}</CardDescription>
+                  <CardTitle>{company.organization}</CardTitle>
+                  <CardDescription>{company.category_name}</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -72,7 +73,7 @@ export default function CompaniesPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Link href={`/companies/${company?.id}`} className="w-full">
+              <Link href={`/companies/${company.id}`} className="w-full">
                 <Button variant="outline" className="w-full">
                   View Profile
                 </Button>

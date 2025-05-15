@@ -5,21 +5,18 @@ export async function GET(req: NextRequest) {
   try {
     // Make the API request
     const response = await axios.get(
-      'https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100'
+      'https://resume.brightspyre.com/api/auth/jobs/list?page=1&limit=100',{
+        headers: {
+          Authorization: `Bearer ${process.env.BEARER_TOKEN}`,
+        }
+      }
     );
-    
-    // Extract company details from the response data
-    const companies = response.data.results.map((job: any) => ({
-      id: job.id, // assuming the job object has an id
-      organization: job.organization, // company name
-      category_name: job.category_name, // company category
-      positions: job.positions, // company size or available positions
-      city: job.city, // assuming the job object has a city property
-    }));
+
     console.log(response.data);
+  
     
     // Return the filtered company data
-    return NextResponse.json(companies);
+    return NextResponse.json(response.data.results);
   } catch (error: any) {
     // Log the error for debugging
 

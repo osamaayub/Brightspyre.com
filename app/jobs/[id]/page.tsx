@@ -8,6 +8,7 @@ import axios from 'axios';
 import { useParams } from 'next/navigation'; // updated for dynamic params
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+
 import {
   Card,
   CardContent,
@@ -20,6 +21,7 @@ import { Separator } from '@/components/ui/separator';
 import { ApplyButton } from '@/components/apply-button';
 import { SaveJobButton } from '@/components/save-job-button';
 import Link from 'next/link';
+import { cleanDescription } from '@/helpers/page';
 
 export default function JobPage() {
   const { id } = useParams(); // Get dynamic 'id' from the URL
@@ -48,10 +50,7 @@ export default function JobPage() {
   if (loading) return <div className="text-center py-8">Loading...</div>;
   if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
 
-  // Clean description function
-  function cleanDescription(html: string) {
-    return he.decode(striptags(html)); // Remove HTML tags and decode HTML entities
-  }
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -114,13 +113,8 @@ export default function JobPage() {
                 <ApplyButton
                   jobId={job?.id}
                   jobTitle={job?.title}
-                  company={job?.organization} 
-                  firstName={''} 
-                  lastName={''} 
-                  email={''} 
-                  phone={''} 
-                  linkedin={''} 
-                  coverLetter={''}              />
+                  company={job?.organization}              
+                  />
                 <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
               </div>
             </CardFooter>
