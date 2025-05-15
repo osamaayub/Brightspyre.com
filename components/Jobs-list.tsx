@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, JSXElementConstructor, ReactElement, ReactNode, ReactPortal } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Filters } from "@/types/filter";
+import { Filters} from "@/types/filter";
 import JobCard from "@/components/JobCard";
 import { Pagination } from "@/components/pagination-job";
-import { count } from "console";
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [state, setState] = useState({
@@ -32,6 +31,7 @@ export function JobsList({ filters }: { filters: Filters }) {
     try {
       const response = await axios.get("/api/jobs");
       setState((prev) => ({ ...prev, jobs: response.data.results || [], loading: false }));
+      
     } catch (err: any) {
       setState((prev) => ({
         ...prev,
@@ -61,6 +61,7 @@ export function JobsList({ filters }: { filters: Filters }) {
       currentPage: 1,
     }));
   };
+
 
   // Filter jobs based on filters
   const filteredJobs = useMemo(() => {
@@ -103,31 +104,51 @@ export function JobsList({ filters }: { filters: Filters }) {
   // Categories filter
   const uniqueCategories = useMemo(() => {
     const categorySet = new Set<string>();
-
+    const count: Record<string, number> = {};
+  
     state.jobs.forEach((job) => {
       if (!job.category_name) return;
-
+  
       job.category_name
         .toLowerCase()
         .split(/[,&]/)
         .map((cat: string) => cat.trim())
         .filter(Boolean)
-        .forEach((cat: string) => categorySet.add(cat));
+        .forEach((cat: string) => {
+          categorySet.add(cat);
+          count[cat] = (count[cat] || 0) + 1;
+        });
     });
-
-    return Array.from(categorySet).sort();
+  
+    return {
+      categories: Array.from(categorySet).sort(),
+      count,
+    };
   }, [state.jobs]);
+  
 
+  //organizations filter
   const uniqueOrganizations = useMemo(() => {
-    return Array.from(
-      new Set(state.jobs.map((job) => job.organization?.toLowerCase()).filter(Boolean))
-    );
+    const count: Record<string, number> = {};
+  
+    const organizations = state.jobs
+      .map((job) => job.organization?.toLowerCase())
+      .filter(Boolean) as string[];
+  
+    organizations.forEach((org) => {
+      count[org] = (count[org] || 0) + 1;
+    });
+  
+    return {
+      organizations: Array.from(new Set(organizations)),
+      count
+    };
   }, [state.jobs]);
+  
 
-  type Job = {
-    city?: string;
-    country?: string;
-  };
+
+
+
   
   const uniqueLocations = useMemo(() => {
     const separators = /[,().\-–;]| and /gi;
@@ -209,7 +230,8 @@ export function JobsList({ filters }: { filters: Filters }) {
           </h3>
           {state.filterToggles.category && (
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueCategories.map((category) => (
+              {/* categories shown with jobs count */}
+              {uniqueCategories.categories.map((category) => (
                 <label key={category} className="text-sm text-gray-600">
                   <input
                     type="checkbox"
@@ -222,7 +244,7 @@ export function JobsList({ filters }: { filters: Filters }) {
                       handleFilterChange("category_name", updated);
                     }}
                   />
-                  {category}
+                  {category} {uniqueCategories.count[category]}
                 </label>
               ))}
             </div>
@@ -244,8 +266,9 @@ export function JobsList({ filters }: { filters: Filters }) {
           </h3>
           {state.filterToggles.organization && (
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueOrganizations.map((org, index) => (
-                <label key={index} className="text-sm text-gray-600">
+              {/* organizations shown with jobs count */}
+              {uniqueOrganizations.organizations.map((org) => (
+                <label key={org} className="text-sm text-gray-600">
                   <input
                     type="checkbox"
                     className="mr-2"
@@ -257,7 +280,7 @@ export function JobsList({ filters }: { filters: Filters }) {
                       handleFilterChange("organization", updated);
                     }}
                   />
-                  {org}
+                    {org} {uniqueOrganizations.count[org]}
                 </label>
               ))}
             </div>
@@ -311,7 +334,7 @@ export function JobsList({ filters }: { filters: Filters }) {
 
       {/* Job List Section */}
       <div className="w-full lg:w-3/4 p-4">
-        <div className="mb-5 text-black">{paginatedJobs.length} of {filteredJobs.length} jobs on {state.currentPage}</div>
+        <div className="mb-5 text-black">{paginatedJobs.length} of {filteredJobs.length} jobs</div>
         {filteredJobs.length === 0 ? (
           <div className="text-center text-gray-700">No Jobs available</div>
         ) : (

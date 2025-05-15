@@ -131,7 +131,7 @@ export default function JobPage() {
                 jobTitle={job?.title}
                 company={job?.organization}
               />
-              <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
+              <SaveJobButton className='w-full' jobId={job?.id} jobTitle={job?.title} />
             </CardFooter>
           </Card>
         </div>

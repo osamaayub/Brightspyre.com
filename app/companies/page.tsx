@@ -144,9 +144,6 @@ export default function CompaniesPage() {
                   View Company
                 </Button>
               </Link>
-              <Link href={`/companies/${company.encrypted_id}`}>
-              <Button size="sm" className="text-sm">View Job</Button>
-            </Link>
             </CardFooter>
           </Card>
         ))}
