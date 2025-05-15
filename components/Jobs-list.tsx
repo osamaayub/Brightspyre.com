@@ -174,13 +174,10 @@ export function JobsList({ filters }: { filters: Filters }) {
 
 
 
-
-
-
   const uniqueLocations = useMemo(() => {
     const separators = /[,().\-–;]| and /gi;
     const noiseWords = ['district', 'remote', 'frequent travel', 'also travel', 'if required'];
-
+  
     const cityCorrections: Record<string, string> = {
       'islmabad': 'islamabad',
       'i khan': 'd.i khan',
@@ -188,39 +185,42 @@ export function JobsList({ filters }: { filters: Filters }) {
       'balouchistan': 'balochistan',
       'mandi bahaudin': 'mandi bahauddin',
     };
-
+  
     const citiesSet = new Set<string>();
-    const countriesSet = new Set<string>();  // <-- To store unique countries
-
+    const countriesSet = new Set<string>();
+    const cityCount: Record<string, number> = {};
+    const countryCount: Record<string, number> = {};
+  
     state.jobs.forEach((job) => {
-      if (!job.city) return;
-
-      // Split by commas to handle multiple cities in one job
-      const parts = job.city
-        .toLowerCase()
-        .split(',')
-        .map((part: string) => part.trim())
-        .filter(
-          (part: string | string[]) =>
-            part.length > 2 && !noiseWords.some((noise) => part.includes(noise))
-        )
-        .map((part: string | number) => cityCorrections[part] || part); // Correct any typos
-
-      // Add all cities to the citiesSet
-      parts.forEach((city: string) => citiesSet.add(city));
-
-      // If country is specified, add to the countriesSet
+      if (job.city) {
+        const parts = job.city
+          .toLowerCase()
+          .split(',')
+          .map((part: string) => part.trim())
+          .filter((part: string) => part.length > 2 && !noiseWords.some(noise => part.includes(noise)))
+          .map((part: string) => cityCorrections[part] || part);
+  
+        parts.forEach((city: string) => {
+          citiesSet.add(city);
+          cityCount[city] = (cityCount[city] || 0) + 1;
+        });
+      }
+  
       if (job.country) {
-        countriesSet.add(job.country.toLowerCase().trim());
+        const country = job.country.toLowerCase().trim();
+        countriesSet.add(country);
+        countryCount[country] = (countryCount[country] || 0) + 1;
       }
     });
-
-    // Return both cities and countries
+  
     return {
       cities: Array.from(citiesSet).sort(),
       countries: Array.from(countriesSet).sort(),
+      cityCount,
+      countryCount,
     };
   }, [state.jobs]);
+  
 
 
 
@@ -342,7 +342,7 @@ export function JobsList({ filters }: { filters: Filters }) {
                       handleFilterChange("city", updated);
                     }}
                   />
-                  {city}
+                  {city}  {uniqueLocations.cityCount[city]}
                 </label>
               ))}
             </div>
