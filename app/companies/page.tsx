@@ -74,38 +74,38 @@ export default function CompaniesPage() {
           <Card
             key={company.id}
             className="
-              group flex flex-col justify-between
+              group flex flex-col flex-grow-0 justify-between
               border border-gray-200 rounded-2xl shadow-md
               bg-white
               hover:shadow-lg hover:border-blue-400 hover:bg-blue-50
                transition-border transition-colors duration-300
               p-6
-              min-h-[320px]
+              min-h-[340px]
             "
           >
             <CardHeader className="p-0 mb-4">
-              <div className="flex items-center gap-5">
+              <div className="flex items-center gap-4">
                 <div className="flex-shrink-0">
-                  {typeof company.organization_logo === "string" &&
-                    company.organization_logo.startsWith("http") ? (
+                  {company.organization_logo?.startsWith("http") ? (
                     <Image
                       src={company.organization_logo}
                       alt={`${company.organization} Logo`}
-                      width={64}
-                      height={64}
+                      width={56}
+                      height={56}
+                      className="rounded-full object-cover shadow"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-bold text-gray-500">
+                    <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500">
                       {company.organization?.charAt(0) || "C"}
                     </div>
                   )}
                 </div>
-
-                <div className="flex flex-col md:items-center md:gap-4 w-full">
-                  <CardTitle className="text-lg font-semibold whitespace-nowrap max-w-full">
+                {/* Keep text inside card */}
+                <div className="flex flex-col w-full overflow-hidden">
+                  <CardTitle className="text-lg font-semibold truncate max-w-full group-hover:text-blue-600 transition-colors">
                     {company.organization}
                   </CardTitle>
-                  <CardDescription className="text-md text-gray-600 truncate max-w-full mt-1 md:mt-0">
+                  <CardDescription className="text-sm text-gray-500 truncate max-w-full">
                     {company.category_name}
                   </CardDescription>
                 </div>
@@ -117,10 +117,10 @@ export default function CompaniesPage() {
                 <div className="flex flex-row justify-between col-gap-2">
                   <span className="font-medium text-gray-500">Location:</span>
                   <span className="text-right whitespace-nowrap">
-                  {company.city}
+                    {company.city}
                   </span>
                   <span className="text-left">
-                  {company.country}
+                    {company.country}
                   </span>
                 </div>
                 <div className="flex justify-between">
