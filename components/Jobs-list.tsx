@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { Filters} from "@/types/filter";
+import { Filters } from "@/types/filter";
 import JobCard from "@/components/JobCard";
 import { Pagination } from "@/components/pagination-job";
+
 
 export function JobsList({ filters }: { filters: Filters }) {
   const [state, setState] = useState({
@@ -31,7 +32,7 @@ export function JobsList({ filters }: { filters: Filters }) {
     try {
       const response = await axios.get("/api/jobs");
       setState((prev) => ({ ...prev, jobs: response.data.results || [], loading: false }));
-      
+
     } catch (err: any) {
       setState((prev) => ({
         ...prev,
@@ -65,50 +66,64 @@ export function JobsList({ filters }: { filters: Filters }) {
 
   // Filter jobs based on filters
   const filteredJobs = useMemo(() => {
-    return state.jobs.filter((job) => {
+    const seen = new Map();
+
+    state.jobs.forEach((job) => {
       const { category_name, organization, city, country } = state.activeFilters;
-         //category Filter
+
       const matchesCategory =
         category_name.length === 0 ||
-        category_name.some((filterCategory)=>(
-          job.category_name.toLowerCase()
-          .includes(filterCategory.toLowerCase())
-         
-        ));
-        //organization Filter
-      const matchesOrganization =
-        organization.length === 0 || 
-        organization.some((filterOrganization)=>(
-          job.organization.toLowerCase()
-          .includes(filterOrganization.toLowerCase())
-         
-        ));
-        //cities filter
-        const matchesCity =
+        category_name.some((filterCategory) =>
+          job.category_name
+            ?.toLowerCase()
+            .split(/[,&]/)
+            .map((cat: string) => cat.trim())
+            .includes(filterCategory.toLowerCase())
+        );
+
+        const matchesOrganization =
+        organization.length === 0 ||
+        organization.some((filterOrganization) => {
+          const orgs = job.organization
+            ?.toLowerCase()
+            .split(/[,&]/)
+            .map((org:string) => org.trim())||[]
+      
+          return orgs?.includes(filterOrganization.toLowerCase());
+        });
+      
+
+
+      const matchesCity =
         city.length === 0 ||
         city.some((filterCity) =>
           job.city
             .toLowerCase()
             .split(',')
-            .map((city:string) => city.trim())
+            .map((c: string) => c.trim())
             .includes(filterCity.toLowerCase())
         );
-        //countries filter
-      const matchesCountry =
-        country.length === 0 || country.map((c) => c.toLowerCase()).includes(job.country?.toLowerCase());
 
-      return matchesCategory && matchesOrganization && matchesCity && matchesCountry;
+      const matchesCountry =
+        country.length === 0 ||
+        country.map((c) => c.toLowerCase()).includes(job.country?.toLowerCase());
+
+      if (matchesCategory && matchesOrganization && matchesCity && matchesCountry) {
+        seen.set(job.id, job); // assumes job.id is unique
+      }
     });
+
+    return Array.from(seen.values());
   }, [state.activeFilters, state.jobs]);
 
   // Categories filter
   const uniqueCategories = useMemo(() => {
     const categorySet = new Set<string>();
     const count: Record<string, number> = {};
-  
+
     state.jobs.forEach((job) => {
       if (!job.category_name) return;
-  
+
       job.category_name
         .toLowerCase()
         .split(/[,&]/)
@@ -119,41 +134,53 @@ export function JobsList({ filters }: { filters: Filters }) {
           count[cat] = (count[cat] || 0) + 1;
         });
     });
-  
+
     return {
       categories: Array.from(categorySet).sort(),
       count,
     };
   }, [state.jobs]);
-  
+
 
   //organizations filter
   const uniqueOrganizations = useMemo(() => {
     const count: Record<string, number> = {};
+    const orgSet = new Set<string>();
   
-    const organizations = state.jobs
-      .map((job) => job.organization?.toLowerCase())
-      .filter(Boolean) as string[];
+    state.jobs.forEach((job) => {
+      if (!job.organization) return;
   
-    organizations.forEach((org) => {
-      count[org] = (count[org] || 0) + 1;
+      // Only split by comma (not by &), and normalize
+      job.organization
+        .toLowerCase()
+        .split(',')
+        .map((org:string) => org.trim())
+        .filter(Boolean)
+        .forEach((org:string) => {
+          orgSet.add(org);
+          count[org] = (count[org] || 0) + 1;
+        });
     });
   
     return {
-      organizations: Array.from(new Set(organizations)),
-      count
+      organizations: Array.from(orgSet).sort(), // deduplicated and sorted
+      count,
     };
   }, [state.jobs]);
   
 
-
-
-
   
+
+
+
+
+
+
+
   const uniqueLocations = useMemo(() => {
     const separators = /[,().\-–;]| and /gi;
     const noiseWords = ['district', 'remote', 'frequent travel', 'also travel', 'if required'];
-  
+
     const cityCorrections: Record<string, string> = {
       'islmabad': 'islamabad',
       'i khan': 'd.i khan',
@@ -161,13 +188,13 @@ export function JobsList({ filters }: { filters: Filters }) {
       'balouchistan': 'balochistan',
       'mandi bahaudin': 'mandi bahauddin',
     };
-  
+
     const citiesSet = new Set<string>();
     const countriesSet = new Set<string>();  // <-- To store unique countries
-  
+
     state.jobs.forEach((job) => {
       if (!job.city) return;
-  
+
       // Split by commas to handle multiple cities in one job
       const parts = job.city
         .toLowerCase()
@@ -178,16 +205,16 @@ export function JobsList({ filters }: { filters: Filters }) {
             part.length > 2 && !noiseWords.some((noise) => part.includes(noise))
         )
         .map((part: string | number) => cityCorrections[part] || part); // Correct any typos
-  
+
       // Add all cities to the citiesSet
       parts.forEach((city: string) => citiesSet.add(city));
-  
+
       // If country is specified, add to the countriesSet
       if (job.country) {
         countriesSet.add(job.country.toLowerCase().trim());
       }
     });
-  
+
     // Return both cities and countries
     return {
       cities: Array.from(citiesSet).sort(),
@@ -195,9 +222,9 @@ export function JobsList({ filters }: { filters: Filters }) {
     };
   }, [state.jobs]);
 
-  
-  
-  
+
+
+
 
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
 
@@ -280,7 +307,7 @@ export function JobsList({ filters }: { filters: Filters }) {
                       handleFilterChange("organization", updated);
                     }}
                   />
-                    {org} {uniqueOrganizations.count[org]}
+                  {org} {uniqueOrganizations.count[org]}
                 </label>
               ))}
             </div>
@@ -302,7 +329,7 @@ export function JobsList({ filters }: { filters: Filters }) {
           </h3>
           {state.filterToggles.city && (
             <div className="flex flex-col gap-1 max-h-48 overflow-y-auto">
-              {uniqueLocations.cities.map((city: string,index:number) => (
+              {uniqueLocations.cities.map((city: string, index: number) => (
                 <label key={`${city}-${index}`} className="text-sm text-gray-600">
                   <input
                     type="checkbox"
