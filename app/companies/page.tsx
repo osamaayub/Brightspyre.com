@@ -124,10 +124,10 @@ export default function CompaniesPage() {
                     {company.country}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-500">Open Positions</span>
+                <div className="flex justify-center gap-2">
+                  <span className="font-medium text-gray-500 hover:bg-gray-300">Open Positions:</span>
                   <Link href={"/jobs"}>
-                  <span className="text-right">{company.positions}</span>
+                  <span className="text-right hover:bg-gray-300">{company.positions}</span>
                   </Link>
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(company.description)}</p>
