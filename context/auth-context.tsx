@@ -1,12 +1,10 @@
 "use client"
 
+
+import { AuthContextType } from "@/types/auth"
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 
-interface AuthContextType {
-  isLoggedIn: boolean
-  login: () => void
-  logout: () => void
-}
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 

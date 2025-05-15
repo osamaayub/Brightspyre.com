@@ -66,11 +66,23 @@ export function JobsList({ filters }: { filters: Filters }) {
   const filteredJobs = useMemo(() => {
     return state.jobs.filter((job) => {
       const { category_name, organization, city, country } = state.activeFilters;
-
+         //category Filter
       const matchesCategory =
-        category_name.length === 0 || category_name.includes(job.category_name?.toLowerCase());
+        category_name.length === 0 ||
+        category_name.some((filterCategory)=>(
+          job.category_name.toLowerCase()
+          .includes(filterCategory.toLowerCase())
+         
+        ));
+        //organization Filter
       const matchesOrganization =
-        organization.length === 0 || organization.includes(job.organization?.toLowerCase());
+        organization.length === 0 || 
+        organization.some((filterOrganization)=>(
+          job.organization.toLowerCase()
+          .includes(filterOrganization.toLowerCase())
+         
+        ));
+        //cities filter
         const matchesCity =
         city.length === 0 ||
         city.some((filterCity) =>
@@ -80,6 +92,7 @@ export function JobsList({ filters }: { filters: Filters }) {
             .map((city:string) => city.trim())
             .includes(filterCity.toLowerCase())
         );
+        //countries filter
       const matchesCountry =
         country.length === 0 || country.map((c) => c.toLowerCase()).includes(job.country?.toLowerCase());
 

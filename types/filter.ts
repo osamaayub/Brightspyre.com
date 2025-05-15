@@ -25,10 +25,13 @@ import { Key } from "react";
 
   export type Company={
     id: Key | null | undefined;
-    organization:string,
-    city:string,
-    positions:string,
-    category_name:string
+    organization:string;
+    organization_logo:string;
+    city:string;
+    country:string;
+    positions:string;
+    category_name:string;
+    url:string
   }
 
 

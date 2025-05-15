@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import striptags from 'striptags';
-import he from 'he';
 import Image from 'next/image';
 import axios from 'axios';
-import { useParams } from 'next/navigation'; // updated for dynamic params
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -19,15 +19,14 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { ApplyButton } from '@/components/apply-button';
 import { SaveJobButton } from '@/components/save-job-button';
-import Link from 'next/link';
+import { cleanDescription } from '@/helpers/page';
 
 export default function JobPage() {
-  const { id } = useParams(); // Get dynamic 'id' from the URL
+  const { id } = useParams();
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch job details when 'id' is available and has changed
   useEffect(() => {
     if (id) {
       fetchJob();
@@ -45,118 +44,130 @@ export default function JobPage() {
     }
   };
 
-  if (loading) return <div className="text-center py-8">Loading...</div>;
-  if (error) return <div className="text-center text-red-500 py-8">{error}</div>;
-
-  // Clean description function
-  function cleanDescription(html: string) {
-    return he.decode(striptags(html)); // Remove HTML tags and decode HTML entities
-  }
+  if (loading)
+    return (
+      <div className="text-center py-12 text-lg font-medium">Loading...</div>
+    );
+  if (error)
+    return (
+      <div className="text-center py-12 text-red-600 font-semibold">{error}</div>
+    );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      {/* Back button */}
+      <div className="mb-8">
         <Link href="/jobs">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" className="hover:text-blue-600 transition">
             ← Back to Jobs
           </Button>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Job Details Section */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex flex-col lg:flex-row justify-between items-start">
-                <div>
-                  <CardTitle className="text-3xl font-bold">{job?.title}</CardTitle>
-                  <CardDescription className="text-lg mt-1 text-gray-600">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        {/* Job Details */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-4 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="min-w-0">
+                  {/* min-w-0 to allow text truncation and prevent overflow */}
+                  <CardTitle className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">
+                    {job?.title}
+                  </CardTitle>
+                  <CardDescription className="text-base sm:text-lg mt-1 max-w-full sm:max-w-[650px] text-gray-600 truncate">
                     <Link
                       href={`/companies/${job.url}`}
-                      className="hover:underline text-blue-600"
+                      className="hover:underline text-blue-600 font-medium"
                     >
                       {job?.organization}
                     </Link>{' '}
                     • {job?.city}, {job?.country}
                   </CardDescription>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
-                  <Badge className="bg-blue-100 text-blue-800 mb-2 sm:mb-0">{job?.category_name}</Badge>
-                  <Badge variant="outline" className="text-gray-700 mb-2 sm:mb-0">
-                    Position(s): {job?.positions}
+                <div className="flex flex-wrap gap-2 sm:gap-3 justify-start sm:justify-end">
+                  <Badge className="bg-blue-100 text-blue-800 px-3 py-1 rounded-md font-semibold text-sm sm:text-base whitespace-nowrap">
+                    {job?.category_name}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="text-gray-700 px-3 py-1 rounded-md font-medium text-sm sm:text-base whitespace-nowrap"
+                  >
+                    Positions: {job?.positions}
                   </Badge>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
-                  {job?.Salary}
-                  
-                </div>
+                {job?.Salary && (
+                  <div className="text-gray-900 font-semibold text-base sm:text-lg mt-3 sm:mt-0 whitespace-nowrap">
+                    {job.Salary}
+                  </div>
+                )}
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Job Description</h3>
+
+            <CardContent className="space-y-8">
+              <section>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">
+                  Job Description
+                </h3>
                 <div
-                  className="text-gray-800"
+                  className="prose max-w-none text-gray-700"
                   dangerouslySetInnerHTML={{ __html: job?.description }}
                 />
-              </div>
+              </section>
 
               <Separator />
 
-              <div>
-                <h3 className="text-xl font-semibold mb-2">Job End Date</h3>
-                <p className="text-gray-600">{job?.end_date}</p>
-              </div>
+              <section>
+                <h3 className="text-xl sm:text-2xl font-semibold mb-2 text-gray-800 border-b border-gray-300 pb-2">
+                  Job End Date
+                </h3>
+                <p className="text-gray-600 text-base sm:text-lg">{job?.end_date}</p>
+              </section>
             </CardContent>
-            <CardFooter className="flex flex-wrap gap-4">
-              <div className="flex gap-4 w-full justify-center sm:justify-start">
-                <ApplyButton
-                  jobId={job?.id}
-                  jobTitle={job?.title}
-                  company={job?.organization} 
-                  firstName={''} 
-                  lastName={''} 
-                  email={''} 
-                  phone={''} 
-                  linkedin={''} 
-                  coverLetter={''}              />
-                <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
-              </div>
+
+            <CardFooter className="flex flex-wrap gap-4 justify-center sm:justify-start pt-6 border-t border-gray-200">
+              <ApplyButton
+                jobId={job?.id}
+                jobTitle={job?.title}
+                company={job?.organization}
+              />
+              <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
             </CardFooter>
           </Card>
         </div>
 
-        {/* Company Information Section */}
-        <div className="lg:col-span-1">
-          <Card>
+        {/* Company Info */}
+        <div>
+          <Card className="shadow-md">
             <CardHeader>
-              <CardTitle className="text-xl font-semibold">Company Information</CardTitle>
+              <CardTitle className="text-base sm:text-lg font-semibold text-gray-900 whitespace-nowrap">
+                Company Information
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex flex-col items-center mb-4">
-                <div className="w-20 h-20 bg-gray-200 rounded-full mb-2 flex items-center justify-center text-2xl font-bold text-white">
-                  {job?.organization?.charAt(0)}
-                </div>
-                <h3 className="text-lg font-semibold text-center text-gray-800">{job?.organization}</h3>
-                <div className="mt-2">
+            <CardContent className="flex flex-col items-center text-center space-y-4 px-4">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center text-4xl font-bold text-gray-400">
+                {job?.organization?.charAt(0)}
+                {job.organization_logo && (
                   <Image
                     src={job.organization_logo}
-                    alt="organization logo"
-                    width={50}
-                    height={50}
-                    className="rounded-full"
+                    alt={`${job.organization} logo`}
+                    fill
+                    className="object-cover rounded-full"
+                    sizes="96px"
                   />
-                </div>
+                )}
               </div>
-              <p className="text-muted-foreground text-sm mb-4 text-center">
-                {cleanDescription(job?.description)} {/* Cleaned description */}
-              </p>
-              <p className="text-muted-foreground text-sm mb-4 text-center">
+              <h3 className="text-lg font-semibold whitespace-nowrap text-gray-800 truncate max-w-full">
                 {job?.organization}
+              </h3>
+              <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6 max-w-full truncate">
+                {cleanDescription(job?.description)}
               </p>
-              <Link href={`/companies/${job.organization}`}>
-                <Button variant="outline" className="w-full text-white bg-blue-600 hover:bg-blue-700">
+              <Link href={`/companies/${job.url}`}>
+                <Button
+                  variant="outline"
+                  className="w-full bg-blue-600 text-white hover:bg-blue-700 transition"
+                >
                   View Profile
                 </Button>
               </Link>
