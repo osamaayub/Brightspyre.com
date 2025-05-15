@@ -16,6 +16,7 @@ import axios from "axios";
 
 import { Company } from "@/types/filter";
 import Image from "next/image";
+import { cleanDescription } from "@/helpers/page";
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -129,6 +130,7 @@ export default function CompaniesPage() {
                   <span className="text-right">{company.positions}</span>
                   </Link>
                 </div>
+                <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(company.description)}</p>
               </div>
             </CardContent>
 

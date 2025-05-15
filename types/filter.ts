@@ -31,6 +31,7 @@ import { Key } from "react";
     country:string;
     positions:string;
     category_name:string;
+    description:string;
     url:string
   }
 
