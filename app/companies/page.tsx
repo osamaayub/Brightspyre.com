@@ -124,8 +124,10 @@ export default function CompaniesPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-500">Company Size:</span>
+                  <span className="font-medium text-gray-500">Open Positions</span>
+                  <Link href={"/jobs"}>
                   <span className="text-right">{company.positions}</span>
+                  </Link>
                 </div>
               </div>
             </CardContent>
