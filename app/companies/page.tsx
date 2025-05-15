@@ -141,9 +141,12 @@ export default function CompaniesPage() {
                   className="w-full py-3 rounded-lg font-semibold text-blue-600 border-blue-600 hover:bg-blue-50"
                   size="lg"
                 >
-                  View Profile
+                  View Company
                 </Button>
               </Link>
+              <Link href={`/companies/${company.encrypted_id}`}>
+              <Button size="sm" className="text-sm">View Job</Button>
+            </Link>
             </CardFooter>
           </Card>
         ))}
