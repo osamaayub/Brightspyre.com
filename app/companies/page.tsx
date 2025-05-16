@@ -16,6 +16,7 @@ import axios from "axios";
 
 import { Company } from "@/types/filter";
 import Image from "next/image";
+import { cleanDescription } from "@/helpers/page";
 
 export default function CompaniesPage() {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -123,10 +124,13 @@ export default function CompaniesPage() {
                     {company.country}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="font-medium text-gray-500">Company Size:</span>
-                  <span className="text-right">{company.positions}</span>
+                <div className="flex justify-center gap-2">
+                  <span className="font-medium text-gray-500 hover:bg-gray-300">Open Positions:</span>
+                  <Link href={"/jobs"}>
+                  <span className="text-right hover:bg-gray-300">{company.positions}</span>
+                  </Link>
                 </div>
+                <p className="text-sm text-gray-600 line-clamp-3">{cleanDescription(company.description)}</p>
               </div>
             </CardContent>
 
@@ -137,7 +141,7 @@ export default function CompaniesPage() {
                   className="w-full py-3 rounded-lg font-semibold text-blue-600 border-blue-600 hover:bg-blue-50"
                   size="lg"
                 >
-                  View Profile
+                  View Company
                 </Button>
               </Link>
             </CardFooter>

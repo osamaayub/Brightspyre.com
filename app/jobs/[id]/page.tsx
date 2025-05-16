@@ -131,7 +131,7 @@ export default function JobPage() {
                 jobTitle={job?.title}
                 company={job?.organization}
               />
-              <SaveJobButton jobId={job?.id} jobTitle={job?.title} />
+              <SaveJobButton className='w-full' jobId={job?.id} jobTitle={job?.title} />
             </CardFooter>
           </Card>
         </div>
@@ -163,7 +163,7 @@ export default function JobPage() {
               <p className="text-gray-600 text-sm leading-relaxed px-2 md:px-6 max-w-full truncate">
                 {cleanDescription(job?.description)}
               </p>
-              <Link href={`/companies/${job.url}`}>
+              <Link href={`${job.url}`}>
                 <Button
                   variant="outline"
                   className="w-full bg-blue-600 text-white hover:bg-blue-700 transition"

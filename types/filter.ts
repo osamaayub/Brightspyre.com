@@ -24,6 +24,7 @@ import { Key } from "react";
   
 
   export type Company={
+    encrypted_id:string;
     id: Key | null | undefined;
     organization:string;
     organization_logo:string;
@@ -31,6 +32,7 @@ import { Key } from "react";
     country:string;
     positions:string;
     category_name:string;
+    description:string;
     url:string
   }
 
