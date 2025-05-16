@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo} from "react";
+
 import axios from "axios";
 import { Filters } from "@/types/filter";
 import JobCard from "@/components/JobCard";
