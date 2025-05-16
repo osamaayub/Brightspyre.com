@@ -25,4 +25,15 @@ export interface ApplyButtonProps {
     phone?:string,
     linkedin?:string,
     coverLetter?:string
+  } 
+export interface PostSchemaForm{
+    jobTitle:string,
+    jobType:"Full-time"|"Part-time"|"Contract"|"Internship",
+    location:"On-site"|"Remote"|"Hybrid",
+    experienceLevel:"Entry-level"|"Mid-level"|"Senior"|"Executive",
+    JobDescription:string,
+    requirements:string,
+    benefits:string,
+    salaryMin:number,
+    salaryMax:number
   }
