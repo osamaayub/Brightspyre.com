@@ -40,18 +40,17 @@ export const applySchema = z.object({
   linkedin: z.string().url("Invalid URL").optional(),
 })
 
-
 //postJobSchema
 export const PostJobSchema = z.object({
-  "jobTitle": z.string().min(50, { message: "Job Title must be at least 50 characters" }),
-  "jobType": z.enum(["full-time", "part-time", "contract", "internship"], {
+  "jobTitle": z.string().min(10, { message: "Job Title must be at least 50 characters" }),
+  "jobType": z.enum(["Full-time", "Part-time", "Contract", "Internship"], {
     message: "Select a valid job type",
   }),
-  "experienceLevel": z.enum(["entry-level", "mid-level", "senior", "executive"], {
+  "experienceLevel": z.enum(["Entry-level", "Mid-level", "Senior", "Executive"], {
     message: "Select a valid experience level",
   }),
   location: z.string().min(1, { message: "Location is required" }),
-  "remote-options": z.enum(["on-site", "remote", "hybrid"], {
+  "remote-options": z.enum(["On-site", "Remote", "Hybrid"], {
     message: "Select a valid remote option",
   }),
   "salaryMin": z.string().regex(/^\d+$/, { message: "Minimum salary must be a number" }),
@@ -60,3 +59,4 @@ export const PostJobSchema = z.object({
   requirements: z.string().min(1, { message: "Requirements are required" }),
   benefits: z.string().min(350, { message: "Perks & benefits are required" }),
 })
+
