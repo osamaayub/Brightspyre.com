@@ -142,6 +142,13 @@ export function JobsList({ filters }: { filters: Filters }) {
   }, [state.jobs]);
 
 
+  const normalizeOrganization=(org:string)=>{
+   return  org.toLowerCase()
+    .replace(/&/g,"and")
+    .replace(/\s+/g," ")
+    .trim()
+
+  }
   //organizations filter
   const uniqueOrganizations = useMemo(() => {
     const count: Record<string, number> = {};
@@ -153,8 +160,8 @@ export function JobsList({ filters }: { filters: Filters }) {
       // Only split by comma (not by &), and normalize
       job.organization
         .toLowerCase()
-        .split(',')
-        .map((org:string) => org.trim())
+        .split(/,&|&/)
+        .map((org:string) => normalizeOrganization(org))
         .filter(Boolean)
         .forEach((org:string) => {
           orgSet.add(org);
